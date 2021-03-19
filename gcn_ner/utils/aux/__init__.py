@@ -4,17 +4,16 @@ import numpy as np
 
 from spacy.tokenizer import Tokenizer
 
-parser = spacy.load('en_core_web_md')
+#parser = spacy.load('en_core_web_md')
+from gensim.models.fasttext import FastText
+parser = FastText.load_fasttext_format('cc.id.300.bin')
 
 
 default_vector = parser('entity')[0].vector
 
-tags = ["CC", "CD", "DT", "EX", "FW", "IN", "JJ", "JJR", "JJS", "LS", "MD", "NN", "NNS", "NNP", "NNPS", "PDT", "POS",
-        "PRP", "PRP$", "RB", "RBR", "RBS", "RP", "TO", "UH", "VB", "VBD", "VBG", "VBN", "VBP", "VBZ", "WDT", "WP",
-        "WP$", "WRB", '``', "''", '.', ',', ':', '-LRB-', '-RRB-']
+tags = ['', "ADJ", "ADP", "ADV", "AUX", "CCONJ", "DET", "INTJ", "NOUN", "NUM", "PART", "PRON", "PROPN", "PUNCT", "SCONJ", "SYM", "VERB", "X", "CONJ", '-LRB-', '-RRB-']
 
-classes = ["CARDINAL", "DATE", "EVENT", "FAC", "GPE", "LANGUAGE", "LAW", "LOC", "MONEY", "NORP", "ORDINAL",
-           "ORG", "PERCENT", "PERSON", "PRODUCT", "QUANTITY", "TIME", "WORK_OF_ART"]
+classes = ["B-PERSON", "I-PERSON", "B-LOC", "I-LOC", "B-ORG", "I-ORG"]
 
 word_substitutions = {'-LRB-': '(',
                       '-RRB-': ')',
@@ -189,9 +188,9 @@ def get_all_sentences(filename):
                 sentences.append(items)
             items = []
             continue
-        word = elements[3].strip()
-        tag = elements[4].strip()
-        entity, old_entity = decide_entity(elements[10].strip(), old_entity)
+        word = elements[1].strip()
+        tag = elements[3].strip()
+        entity, old_entity = decide_entity(elements[9].strip(), old_entity)
         items.append((word, tag, entity))
     return sentences
 
