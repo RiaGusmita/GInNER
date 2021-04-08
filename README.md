@@ -1,4 +1,4 @@
-# Graph-based Indonesian Named Entity Recognition (GInNER). 
+# Graph-based Indonesian Named Entity Recognition (GInNER) 
 This model is used to predict named entities in Indonesian text utilizing a graph representation technique, graph convolutional network (GCN). 
 The model is built by modifying an existing GCN-NER by A. Cetoli, S. Bragaglia, A.D. O'Harney, M. Sloan (https://arxiv.org/abs/1709.10053).
 
@@ -9,12 +9,9 @@ Follow the instructions to install the model.
 ## Visualization Tools
 
 We use a third party to visualize the training and validation loss, and accuracy. 
-If you don't install visdom yet, please install visdom as follows:
+If you have not had visdom yet, install it using this command:
 ```
 pip install visdom
 ``` 
 
-And run the visdom before you execute the train model. Just type visdom on terminal and enter.
-```
-visdom
-```
+Run visdom before you train the model by typing "visdom" on terminal and enter.
