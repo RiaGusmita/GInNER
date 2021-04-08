@@ -14,4 +14,4 @@ If you have not had visdom yet, install it using this command:
 pip install visdom
 ``` 
 
-Run visdom before you train the model by typing "visdom" on terminal and enter.
+Run visdom before you train the model by typing ```visdom``` on terminal and enter.
