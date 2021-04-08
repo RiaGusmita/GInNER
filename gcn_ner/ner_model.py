@@ -1,9 +1,10 @@
 import sys
 import tensorflow as tf
 import numpy as np
+from tqdm import tqdm
 
 from tensorflow.contrib import rnn
-
+np.warnings.filterwarnings('ignore', category=np.VisibleDeprecationWarning) 
 NAMESPACE = 'gcn'
 
 
@@ -34,12 +35,12 @@ class GCNNerModel(object):
     _embedding_size = 160
     _internal_proj_size = 40
     _memory_dim = 160
-    _vocab_size = 300
-    _tag_size = 43
+    _vocab_size = 256
+    _tag_size = 79
     _tag_embeddings_size = 15
     _hidden_layer1_size = 200
     _hidden_layer2_size = 200
-    _output_size = 19
+    _output_size = 8
 
     def __init__(self, dropout=1.0):
 
@@ -168,7 +169,7 @@ class GCNNerModel(object):
 
         y = np.array(y)
         y = np.transpose(y, (1, 0, 2))
-
+        
         feed_dict = {}
         feed_dict.update({self.enc_inp: X})
         feed_dict.update({self.enc_inp_bw: X2})
@@ -183,11 +184,12 @@ class GCNNerModel(object):
         feed_dict.update({self.transition_params: trans_prob})
         feed_dict.update({self.sequence_lengths: seq_lengths})
         feed_dict.update({self.gold_tags: gold_tags})
-
+        #print(feed_dict)
         loss, _, summary = self.sess.run([self.cross_entropy, self.train_step, self.merged], feed_dict)
         return loss, summary
 
     def train(self, data, trans_prob, epochs=20):
+        total_loss = 0
         for epoch in range(epochs):
             loss, _ = self.__train([data[i][0] for i in range(len(data))],
                                    [data[i][1] for i in range(len(data))],
@@ -196,6 +198,11 @@ class GCNNerModel(object):
                                    [data[i][4] for i in range(len(data))],
                                    trans_prob)
             sys.stdout.flush()
+            #print("loss", loss)
+            total_loss += loss.item()
+        total_loss = total_loss/epochs
+        return total_loss
+            
 
     def __predict(self, A_fw, A_bw, X, tag_logits, trans_prob):
         Atilde_fw = np.array([self._add_identity(item) for item in A_fw])

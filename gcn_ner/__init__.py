@@ -14,6 +14,8 @@ class GCNNer:
     def __init__(self, ner_filename, trans_prob_file):
         self._ner = GCNNerModel.load(ner_filename)
         self._trans_prob = pickle.load(open(trans_prob_file, "rb"))
+        #print(self._trans_prob)
+        #print(self._trans_prob.shape)
 
     def get_entity_tuples_from_sentence(self, sentence):
         '''
@@ -22,13 +24,15 @@ class GCNNer:
         :param sentence: The input sentence
         :return: a list of triples of the form (<ENTITY>, <ENTITY_TYPE>, [<ENTITY_START_POS>, <ENTITY_END_POS>])
         '''
-        try:
-            words, embeddings, idx = utils.aux.get_words_embeddings_from_sentence(sentence)
-            entities = utils.tuples.get_entities_from_tuple(words, embeddings, self._ner, self._trans_prob)
-            return utils.tuples.clean_tuples(words, entities, idx)
-        except:
-            self._logger.warning('Cannot process the following sentence: ' + sentence)
-            return []
+        #try:
+        words, embeddings, idx = utils.aux.get_words_embeddings_from_sentence(sentence)
+        print("words", words)
+        print("idx", idx)
+        entities = utils.tuples.get_entities_from_tuple(words, embeddings, self._ner, self._trans_prob)
+        return utils.tuples.clean_tuples(words, entities, idx)
+        #except:
+        #    self._logger.warning('Cannot process the following sentence: ' + sentence)
+        #    return []
 
     def get_entity_tuples_from_text(self, text):
         '''
@@ -46,6 +50,8 @@ class GCNNer:
         for words, embeddings, idx in sentences:
             try:
                 entities = utils.tuples.get_entities_from_tuple(words, embeddings, self._ner, self._trans_prob)
+                print("words", words)
+                print("entities", entities)
                 all_words.extend(words)
                 all_entities.extend(entities)
                 all_idx.extend(idx)
@@ -62,11 +68,12 @@ class GCNNer:
         '''
 
         sentences = utils.aux.get_all_sentences(dataset)
+        #print(sentences)
         data, _ = utils.aux.get_data_from_sentences(sentences)
         precision, recall, f1 = utils.testing.get_gcn_results(self._ner, data, self._trans_prob)
-        print('precision:', precision)
-        print('recall:', recall)
-        print('F1:', f1)
+        #print('precision:', precision)
+        #print('recall:', recall)
+        #print('F1:', f1)
 
     @staticmethod
     def train_and_save(dataset, saving_dir, epochs=20, bucket_size=10):

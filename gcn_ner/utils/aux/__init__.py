@@ -1,19 +1,20 @@
 import spacy
 import re
 import numpy as np
+from tqdm import tqdm
 
-from spacy.tokenizer import Tokenizer
-
-#parser = spacy.load('en_core_web_md')
-from gensim.models.fasttext import FastText
-parser = FastText.load_fasttext_format('cc.id.300.bin')
+parser = spacy.load("id_dep_ud_sm")
 
 
 default_vector = parser('entity')[0].vector
 
-tags = ['', "ADJ", "ADP", "ADV", "AUX", "CCONJ", "DET", "INTJ", "NOUN", "NUM", "PART", "PRON", "PROPN", "PUNCT", "SCONJ", "SYM", "VERB", "X", "CONJ", '-LRB-', '-RRB-']
-
-classes = ["B-PERSON", "I-PERSON", "B-LOC", "I-LOC", "B-ORG", "I-ORG"]
+tags = ['PROPN', 'NOUN', 'VERB', 'ADP', 'ADJ', 'PUNCT', 'CCONJ', 'PRON', 'ADV', 'DET', 'SCONJ', 'AUX', 'PART', 'NUM', 'SYM', 'X', 'CONJ',
+        'NSD', 'VSA', 'R--', 'Z--', 'H--', 'D--', 'S--', 'F--', 'VSP', 'G--', 'ASP', 'X--', 'B--', 'M--', 
+        'PP3', 'O--', 'VSA+PS3', 'CC-', 'CO-', 'F--+PS3', 'G--+T--', 'W--', '_', 'W--+T--', 'ASP+PS3', 'NSD+PS3', 
+        'VSA+T--', 'PS2', 'VSP+PS3', 'T--', 'PS3', 'R--+PS3', 'NSF', 'PS1+VSA+T--', 'PS1', 'NPD', 'M--+T--', 'R--+PS1', 
+        'ASS', 'H--+T--', 'R--+PS2', 'PP1', 'ASP+T--', 'CD-', 'D--+T--', 'B--+PS3', 'NSD+PS1', 'NPD+PS3', 'NSM', 'D--+PS3', 
+        'PS1+VSA', 'I--', 'APP', 'VSP+T--', 'NSD+T--', 'NSD+PS2', 'CO-+PS3', 'B--+T--', 'CC-+PS3', 'PP2', 'M--+PS3']
+classes = ["O", "B-PERSON", "I-PERSON", "B-LOC", "I-LOC", "B-ORG", "I-ORG"]
 
 word_substitutions = {'-LRB-': '(',
                       '-RRB-': ')',
@@ -73,6 +74,7 @@ def get_clean_word_vector(word, tag):
             vector = default_vector
     except:
         vector = default_vector
+    #print("vector", vector.shape)
     return np.array(vector, dtype=np.float64)
 
 
@@ -169,7 +171,8 @@ def create_graph_from_sentence_and_word_vectors(sentence, word_vectors):
     g2.add_vertices(nodes)
     g2.add_edges(edges)
     A_bw = np.array(g2.get_adjacency().data)
-
+    #print(tags)
+    #print(len(tags))
     tag_logits = [get_tagging_vector(tag) for tag in tags]
     return A_fw, A_bw, tag_logits, X
 
@@ -178,20 +181,29 @@ def get_all_sentences(filename):
     file = open(filename)
     sentences = []
     items = []
-    old_entity = ''
+    #old_entity = ''
     for line in file.readlines():
-        if line[0] == '#':
-            continue
         elements = line.split()
-        if len(elements) < 5:
+        #print(elements)
+        #print(len(elements))
+        if len(elements) == 0:
             if items != []:
+                #print('items', items)
                 sentences.append(items)
             items = []
             continue
-        word = elements[1].strip()
-        tag = elements[3].strip()
-        entity, old_entity = decide_entity(elements[9].strip(), old_entity)
-        items.append((word, tag, entity))
+        else:
+            word = elements[2].strip()
+            #print("word", word)
+            tag = elements[3].strip()
+            #print('tag', tag)
+            entity = elements[9]
+            #print('entity', entity)
+            entity = re.sub("\n", "", entity)
+            if entity =="_":
+                entity="O"
+            items.append((word, tag, entity))
+            print("the items are:", items,"\n")
     return sentences
 
 
@@ -214,12 +226,13 @@ def get_data_from_sentences(sentences):
     all_data = []
     A = np.zeros((len(classes) + 1, len(classes) + 1))
     total_tokens = 0
-    for sentence in sentences:
+    for sentence in tqdm(sentences):
         word_data = []
         class_data = []
         tag_data = []
         words = []
         prior_entity = len(classes)
+        #print('sentence', sentence)
         for word, tag, entity in sentence:
             if word == _partial_word:
                 continue
@@ -236,5 +249,8 @@ def get_data_from_sentences(sentences):
             prior_entity = entity_num
             total_tokens += 1
         all_data.append((words, word_data, tag_data, class_data))
+    #print('A', A)
+    #print('total tokens', total_tokens)
     A /= total_tokens
+    #print('all_data', all_data)
     return all_data, A

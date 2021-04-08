@@ -1,6 +1,5 @@
-from spacy.en import English
-
-parser = English()
+import spacy
+parser = spacy.load("id_dep_ud_sm")
 
 _invalid_words = [' ']
 
