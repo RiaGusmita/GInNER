@@ -35,11 +35,11 @@ class GCNNerModel(object):
     _embedding_size = 160
     _internal_proj_size = 40
     _memory_dim = 160
-    _vocab_size = 256
-    _tag_size = 79
+    _vocab_size = 96
+    _tag_size = 18
     _tag_embeddings_size = 15
-    _hidden_layer1_size = 200
-    _hidden_layer2_size = 200
+    _hidden_layer1_size = 100
+    _hidden_layer2_size = 100
     _output_size = 8
 
     def __init__(self, dropout=1.0):

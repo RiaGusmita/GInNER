@@ -3,17 +3,19 @@ import re
 import numpy as np
 from tqdm import tqdm
 
-parser = spacy.load("id_dep_ud_sm")
+parser = spacy.load("id_spacy")
 
 
 default_vector = parser('entity')[0].vector
 
-tags = ['PROPN', 'NOUN', 'VERB', 'ADP', 'ADJ', 'PUNCT', 'CCONJ', 'PRON', 'ADV', 'DET', 'SCONJ', 'AUX', 'PART', 'NUM', 'SYM', 'X', 'CONJ',
+tags = ['PROPN', 'NOUN', 'VERB', 'ADP', 'ADJ', 'PUNCT', 'CCONJ', 'PRON', 'ADV', 'DET', 'SCONJ', 'AUX', 'PART', 'NUM', 'SYM', 'X', 'CONJ']
+'''
         'NSD', 'VSA', 'R--', 'Z--', 'H--', 'D--', 'S--', 'F--', 'VSP', 'G--', 'ASP', 'X--', 'B--', 'M--', 
         'PP3', 'O--', 'VSA+PS3', 'CC-', 'CO-', 'F--+PS3', 'G--+T--', 'W--', '_', 'W--+T--', 'ASP+PS3', 'NSD+PS3', 
         'VSA+T--', 'PS2', 'VSP+PS3', 'T--', 'PS3', 'R--+PS3', 'NSF', 'PS1+VSA+T--', 'PS1', 'NPD', 'M--+T--', 'R--+PS1', 
         'ASS', 'H--+T--', 'R--+PS2', 'PP1', 'ASP+T--', 'CD-', 'D--+T--', 'B--+PS3', 'NSD+PS1', 'NPD+PS3', 'NSM', 'D--+PS3', 
         'PS1+VSA', 'I--', 'APP', 'VSP+T--', 'NSD+T--', 'NSD+PS2', 'CO-+PS3', 'B--+T--', 'CC-+PS3', 'PP2', 'M--+PS3']
+'''
 classes = ["O", "B-PERSON", "I-PERSON", "B-LOC", "I-LOC", "B-ORG", "I-ORG"]
 
 word_substitutions = {'-LRB-': '(',
@@ -173,6 +175,9 @@ def create_graph_from_sentence_and_word_vectors(sentence, word_vectors):
     A_bw = np.array(g2.get_adjacency().data)
     #print(tags)
     #print(len(tags))
+    #print(src_tags)
+    #print(len(src_tags))
+    #print(len(tags))
     tag_logits = [get_tagging_vector(tag) for tag in tags]
     return A_fw, A_bw, tag_logits, X
 
@@ -203,7 +208,7 @@ def get_all_sentences(filename):
             if entity =="_":
                 entity="O"
             items.append((word, tag, entity))
-            print("the items are:", items,"\n")
+            #print(items)
     return sentences
 
 
@@ -230,6 +235,7 @@ def get_data_from_sentences(sentences):
         word_data = []
         class_data = []
         tag_data = []
+        tag_text = []
         words = []
         prior_entity = len(classes)
         #print('sentence', sentence)
@@ -240,6 +246,7 @@ def get_data_from_sentences(sentences):
             word_vector = get_clean_word_vector(word, tag)
             tag_vector = get_tagging_vector(tag)
             tag_data.append(tag_vector)
+            tag_text.append(tag)
             vector = word_vector
             class_vector = get_class_vector(entity)
             entity_num = get_entity_num(entity)

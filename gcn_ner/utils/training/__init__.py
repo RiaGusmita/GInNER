@@ -23,14 +23,14 @@ def bin_data_into_buckets(data, batch_size):
 def train_and_save(train_dataset, validation_dataset, saving_dir, epochs=20, bucket_size=10):
     import random
     import sys
-    import pickle
+    #import pickle
     import numpy as np
     import gcn_ner.utils.aux as aux
-    from pathlib import Path
+    #from pathlib import Path
 
     from gcn_ner.ner_model import GCNNerModel
     from ..aux import  create_full_sentence
-    from ..testing import get_gcn_results
+    #from ..testing import get_gcn_results
     from tqdm import tqdm
     import visdom
     viz = visdom.Visdom()
@@ -42,7 +42,7 @@ def train_and_save(train_dataset, validation_dataset, saving_dir, epochs=20, buc
     val_data, val_trans_prob = aux.get_data_from_sentences(val_sentences)
     #my_file = Path("./datasets/trans_prob.pickle")
     #if my_file.exists():
-    #    pickle.dump(trans_prob, open("./datasets/trans_prob.pickle", "wb"))
+    #pickle.dump(trans_prob, open("./datasets/trans_prob.pickle", "wb"))
     #else:
     #    pickle.dump(trans_prob, open("./datasets/trans_prob.pickle", "wb"))
         
@@ -66,9 +66,6 @@ def train_and_save(train_dataset, validation_dataset, saving_dir, epochs=20, buc
                     if len(sentence) > 250 and x > 2:
                         pass
                     else:
-                        #print("sentence length", len(sentence))
-                        #print(sentence)
-                        
                         tags = item[2]
                         label = item[3]
                         label = [np.array(l, dtype=np.float32) for l in label]
@@ -76,13 +73,11 @@ def train_and_save(train_dataset, validation_dataset, saving_dir, epochs=20, buc
                         gcn_bucket.append((A_fw, A_bw, X, tags, label))
                     x += 1
                 if len(gcn_bucket) > 1:
-                    #print("train bucket")
                     loss = gcn_model.train(gcn_bucket, trans_prob, 1)
                     total_loss +=loss
             except:
                pass
         save_filename = saving_dir + '/ner-gcn-' + str(i) + '.tf'
-        print(save_filename)
         sys.stderr.write('Saving into ' + save_filename + '\n')
         gcn_model.save(save_filename)
         
@@ -93,11 +88,9 @@ def train_and_save(train_dataset, validation_dataset, saving_dir, epochs=20, buc
                 gcn_val_bucket = []
                 for item in val_bucket:
                     words = item[0]
-                    #print('words', words)
                     word_embeddings = item[1]
                     sentence = create_full_sentence(words)
                     tags = item[2]
-                    #print("tags", tags)
                     label = item[3]
                     label = [np.array(l, dtype=np.float32) for l in label]
                     A_fw, A_bw, _, X = aux.create_graph_from_sentence_and_word_vectors(sentence, word_embeddings)

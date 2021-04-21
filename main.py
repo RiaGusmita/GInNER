@@ -19,7 +19,7 @@ if __name__ == '__main__':
     parser.add_argument("--validation_dataset", type=str, default="", help="Validation dataset path")
     parser.add_argument("--saving_dir", type=str, default="", help="Saving models directory path")
     parser.add_argument("--mode", type=str, default="train", help="use which mode type: train/test")
-    parser.add_argument("--ner_model", type=str, default="./datasets/ner-gcn-100.tf", help="use which mode type: train/test")
+    parser.add_argument("--ner_model", type=str, default="./models/ner-gcn-9.tf", help="path of NER model")
     
     args = parser.parse_args()
     main(args.train_dataset, args.validation_dataset, args.saving_dir, args.mode, args.n_epochs, args.ner_model)

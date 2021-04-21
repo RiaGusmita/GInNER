@@ -1,5 +1,5 @@
 import spacy
-parser = spacy.load("id_dep_ud_sm")
+parser = spacy.load("id_spacy")
 
 _invalid_words = [' ']
 
@@ -41,7 +41,7 @@ class SpacyParser:
                 edges.append((index, child_index))
             names.append("v" + str(index))
             words.append(item.vector)
-            tags.append(item.tag_)
+            tags.append(item.pos_)
             types.append(item.dep_)
         
         return names, edges, words, tags, types
@@ -72,7 +72,7 @@ class SpacyParser:
                 edges.append((child_index, index))
             names.append("v" + str(index))
             words.append(item.vector)
-            tags.append(item.tag_)
+            tags.append(item.pos_)
             types.append(item.dep_)
 
         return names, edges, words, tags, types
