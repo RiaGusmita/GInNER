@@ -1,25 +1,65 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Dec  9 19:57:37 2020
+
+@author: Asep Fajar Firmansyah
+"""
 from __future__ import unicode_literals, print_function, division
+import os
+import os.path as path
+import sys
 import argparse
+import torch
 
-from gcn_ner import GCNNer
+import visdom
+import numpy as np
+import time
+import math
+import spacy
 
-def main(train_dataset, validation_dataset, saving_dir, mode, n_epochs, ner_model):
-    if mode=="train":
-        GCNNer.train_and_save(train_dataset, validation_dataset, saving_dir, n_epochs)
+from data_loader import getData
+from train import train
+from model_testing import model_testing
+
+
+DEVICE = torch.device("cpu")
+
+def main(mode, loss_function, hidden_layers, nheads, lr, dropout, regularization, weight_decay, n_epoch, save_every): 
+    if regularization==True:
+        weight_decay==weight_decay
+    else:
+        weight_decay==0
+        
+    print('Hyper paramters:')  
+    print("Loss function: {}".format(loss_function))
+    print("Learning rate: {}",format(lr))
+    print("Dropout: {}",format(dropout))
+    if regularization==True:
+        print("Weight Decay: {}", format(weight_decay))
+    print("n Epochs: {}", format(n_epoch))
     
-    if mode=="test":
-        ner = GCNNer(ner_filename=ner_model, trans_prob_file='./datasets/trans_prob.pickle')
-        ner.test('./datasets/test.conllu')
-    
-
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='GInNER: Graph-based Indonesian Named Entity Recognition ')
-    parser.add_argument("--n_epochs", type=int, default=101, help="train model in total n epochs")
-    parser.add_argument("--train_dataset", type=str, default="", help="Train dataset path")
-    parser.add_argument("--validation_dataset", type=str, default="", help="Validation dataset path")
-    parser.add_argument("--saving_dir", type=str, default="", help="Saving models directory path")
-    parser.add_argument("--mode", type=str, default="train", help="use which mode type: train/test")
-    parser.add_argument("--ner_model", type=str, default="./models/ner-gcn-9.tf", help="path of NER model")
+    if mode == "train" or mode =="test" or mode=="all":
+        train_dataset, valid_dataset, test_dataset = getData()
+        print('Data loading ...')
+        if mode == "train":
+            train(train_dataset, valid_dataset, DEVICE, dropout, hidden_layers, nheads, n_epoch)
+        if mode == "test":
+            #print(test_dataset)
+            model_testing(test_dataset, DEVICE, dropout, hidden_layers, nheads)
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Indonesian NER')
+    parser.add_argument("--mode", type=str, default="all", help="use which mode type: train/test/all")
+    parser.add_argument("--loss_function", type=str, default="BCE", help="use which loss type: BCE/MSE")
+    parser.add_argument("--hidden_layers", type=int, default=2, help="the number of hidden layers")
+    parser.add_argument("--nheads", type=int, default=3, help="the number of heads attention")
+    parser.add_argument("--lr", type=float, default=0.005, help="use to define learning rate hyperparameter")
+    parser.add_argument("--dropout", type=float, default='0.0', help="use to define dropout hyperparameter")
+    parser.add_argument("--weight_decay", type=float, default='1e-5', help="use to define weight decay hyperparameter if the regularization set to True")
+    parser.add_argument("--regularization", type=bool, default=False, help="use to define regularization: True/False")
+    parser.add_argument("--save_every", type=int, default=1, help="save model in every n epochs")
+    parser.add_argument("--n_epoch", type=int, default=50, help="train model in total n epochs")
     
     args = parser.parse_args()
-    main(args.train_dataset, args.validation_dataset, args.saving_dir, args.mode, args.n_epochs, args.ner_model)
+    main(args.mode, args.loss_function, args.hidden_layers, args.nheads, args.lr, args.dropout, args.regularization, args.weight_decay, \
+         args.n_epoch, args.save_every)
