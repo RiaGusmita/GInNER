@@ -4,7 +4,7 @@
 from model import GInNER
 import os.path as path
 import torch
-from data_loader import getSentences, get_data_from_sentences, createFullSentence, create_graph_from_sentence_and_word_vectors, get_class_name
+from data_loader import getSentences, get_data_from_sentences, createFullSentence, create_graph_from_sentence_and_word_vectors, get_class_name, get_data_from_sentences_fasttext
 from tqdm import tqdm
 import torch
 from sklearn.metrics import recall_score, precision_score, f1_score
@@ -13,12 +13,16 @@ import random
 
 _logger = logging.getLogger(__name__)
 
-def model_testing(test_dataset, device, dropout, hidden_layer, nheads, word_embedding_dim=96):
+def model_testing(test_dataset, device, dropout, hidden_layer, nheads, word_emb_model, word_emb, word_embedding_dim=96):
     #print(test_dataset)
+    
     sentences = getSentences(test_dataset)
     #print("sentences", sentences)
     #print('len sentences', len(sentences))
-    data = get_data_from_sentences(sentences)
+    if word_emb_model =="fasttext":
+        data = get_data_from_sentences_fasttext(sentences, word_emb)
+    else:
+        data = get_data_from_sentences(sentences)
     ginner = GInNER(word_embedding_dim, device, dropout, hidden_layer, nheads)
     checkpoint = torch.load(path.join("models", "checkpoint_epoch_{}.pt".format(49)))
     ginner.load_state_dict(checkpoint["model_state_dict"])
