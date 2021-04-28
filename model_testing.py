@@ -1,10 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Sun Apr 25 15:26:54 2021
 
-@author: asep
-"""
 from model import GInNER
 import os.path as path
 import torch

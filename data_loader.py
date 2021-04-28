@@ -1,10 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Thu Apr 22 18:21:07 2021
-
-@author: asep
-"""
 
 import re
 from tqdm import tqdm

@@ -1,22 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Wed Dec  9 19:57:37 2020
 
-@author: Asep Fajar Firmansyah
-"""
 from __future__ import unicode_literals, print_function, division
-import os
-import os.path as path
-import sys
 import argparse
 import torch
-
-import visdom
-import numpy as np
-import time
-import math
-import spacy
 
 from data_loader import getData
 from train import train
