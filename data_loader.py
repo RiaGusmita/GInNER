@@ -206,10 +206,12 @@ def get_words_embeddings_from_sentence_fasttext(sentence, word_emb):
     tokens = sentence.split(" ")
     print("Tokens", sentence)
     vectors = []
+    words = []
     for token in tokens:
         vectors.append(get_vector_fasttext(token, word_emb))
-    
-    return vectors
+        words.append(token)
+        
+    return words, vectors
 
 def get_vector_fasttext(word, word_emb):
     #try:

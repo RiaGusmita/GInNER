@@ -32,7 +32,7 @@ def _get_entity_tuples_from_sentence(sentence, word_emb_model, word_embedding_di
     ginner.to(DEVICE)
     
     if word_emb_model=="fasttext":
-        vectors = get_words_embeddings_from_sentence_fasttext(sentence, word_emb)
+        words, vectors = get_words_embeddings_from_sentence_fasttext(sentence, word_emb)
     else:
         words, vectors, idx = get_words_embeddings_from_sentence(sentence)
     
