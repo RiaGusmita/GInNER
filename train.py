@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from data_loader import getSentences, get_data_from_sentences, createFullSentence, create_graph_from_sentence_and_word_vectors
+from data_loader import getSentences, get_data_from_sentences, createFullSentence, create_graph_from_sentence_and_word_vectors, get_data_from_sentences_fasttext
 from model import GInNER
 import sys
 from tqdm import tqdm
@@ -51,16 +51,20 @@ def loss_fn(preds:list, labels):
     avg_loss = (start_loss + end_loss) / 2
     return avg_loss
 
-def train(train_dataset, validation_dataset, device, dropout, hidden_layer, nheads, epochs, lr, regularization, word_emb_model, saving_dir="models", 
+def train(train_dataset, validation_dataset, device, dropout, hidden_layer, nheads, epochs, lr, regularization, word_emb_model, word_emb, saving_dir="models", 
           word_embedding_dim=96, weight_decay=1e-5):
     import visdom
     viz = visdom.Visdom()
     
     if not path.exists(saving_dir):
         os.makedirs(saving_dir)
-    sentences = getSentences(train_dataset)
-    data = get_data_from_sentences(sentences, word_emb_model)
     
+    sentences = getSentences(train_dataset)
+    
+    if word_emb_model =="fasttext":
+        data = get_data_from_sentences_fasttext(sentences, word_emb)
+    else:
+        data = get_data_from_sentences(sentences)
     val_sentences = getSentences(validation_dataset)
     val_data = get_data_from_sentences(val_sentences)
     

@@ -8,11 +8,6 @@ import spacy
 import torch
 #print(parser)
 
-import fasttext
-import fasttext.util
-
-#ft = fasttext.load_model('cc.id.300.bin')
-
 parser = spacy.load("id_spacy")
 
 
@@ -71,7 +66,7 @@ def getSentences(data):
             words_and_label = []
     return sentences
 
-def get_data_from_sentences(sentences, word_emb_model):
+def get_data_from_sentences(sentences):
     all_data = []
     A = np.zeros((len(classes) + 1, len(classes) + 1))
     total_tokens = 0
@@ -86,7 +81,7 @@ def get_data_from_sentences(sentences, word_emb_model):
             if word == _partial_word:
                 continue
             words.append(word)
-            word_vector = get_word_vector(word, word_emb_model)
+            word_vector = get_word_vector(word)
             vector = word_vector
             entity_num = get_entity_num(entity)
             word_data.append(vector)
@@ -98,7 +93,34 @@ def get_data_from_sentences(sentences, word_emb_model):
         all_data.append((words, word_data, class_data, class_text))
     return all_data
 
-def get_word_vector(word, word_emb_model):
+def get_data_from_sentences_fasttext(sentences, word_emb):
+    all_data = []
+    A = np.zeros((len(classes) + 1, len(classes) + 1))
+    total_tokens = 0
+    for sentence in tqdm(sentences):
+        word_data = []
+        class_data = []
+        class_text = []
+        words = []
+        prior_entity = len(classes)
+        #print('sentence', sentence)
+        for word, entity in sentence:
+            if word == _partial_word:
+                continue
+            words.append(word)
+            word_vector = word_emb.get_word_vector(word)
+            vector = word_vector
+            entity_num = get_entity_num(entity)
+            word_data.append(vector)
+            class_data.append(entity_num)
+            class_text.append(entity)
+            A[prior_entity, entity_num] += 1
+            prior_entity = entity_num
+            total_tokens += 1
+        all_data.append((words, word_data, class_data, class_text))
+    return all_data
+
+def get_word_vector(word):
     parsed = parser(word)
     default_vector = parser('entity')[0].vector
     try:

@@ -8,6 +8,8 @@ import torch
 from data_loader import getData
 from train import train
 from model_testing import model_testing
+import fasttext
+import fasttext.util
 
 DEVICE = torch.device("cpu")
 
@@ -25,11 +27,16 @@ def main(mode, loss_function, hidden_layers, nheads, lr, dropout, regularization
         print("Weight Decay: {}", format(weight_decay))
     print("n Epochs: {}", format(n_epoch))
     
+    word_emb=""
+    if word_emb_model=="fasttext":
+        word_emb = fasttext.load_model('cc.id.300.bin')
+        word_emb = fasttext.util.reduce_model(word_emb, 100)
+    
     if mode == "train" or mode =="test" or mode=="all":
         train_dataset, valid_dataset, test_dataset = getData()
         print('Data loading ...')
         if mode == "train":
-            train(train_dataset, valid_dataset, DEVICE, dropout, hidden_layers, nheads, n_epoch, lr, regularization, word_emb_model)
+            train(train_dataset, valid_dataset, DEVICE, dropout, hidden_layers, nheads, n_epoch, lr, regularization, word_emb_model, word_emb)
         if mode == "test":
             #print(test_dataset)
             model_testing(test_dataset, DEVICE, dropout, hidden_layers, nheads)
