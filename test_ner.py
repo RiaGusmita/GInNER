@@ -17,7 +17,7 @@ def _aggregate_sentence(args):
     return return_str
 
 
-def _get_entity_tuples_from_sentence(sentence, word_emb_model, word_embedding_dim):
+def _get_entity_tuples_from_sentence(sentence, word_emb_model, word_embedding_dim, use_epoch):
     from model import GInNER
     import fasttext
     import fasttext.util
@@ -27,7 +27,7 @@ def _get_entity_tuples_from_sentence(sentence, word_emb_model, word_embedding_di
         word_emb = fasttext.util.reduce_model(word_emb, word_embedding_dim)
         
     ginner = GInNER(word_embedding_dim, DEVICE, dropout=0.0, hidden_layer=2, nheads=3)
-    checkpoint = torch.load(path.join("models", "checkpoint_epoch_{}.pt".format(49)))
+    checkpoint = torch.load(path.join("models", "checkpoint_epoch_{}.pt".format(use_epoch)))
     ginner.load_state_dict(checkpoint["model_state_dict"])
     ginner.to(DEVICE)
     
@@ -53,6 +53,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Indonesian NER')
     parser.add_argument("--word_emb_model", type=str, default="spacy", help="Word embedding models: spacy/fasttext")
     parser.add_argument("--word_emb_dim", type=int, default=96, help="Word embedding dimension")
+    parser.add_argument("--use_epoch", type=int, default=10, help="Which use best epoch")
+    
     args = parser.parse_args()
     if os.isatty(0):
         print(_error_message)
@@ -60,4 +62,4 @@ if __name__ == '__main__':
     sentences = sys.stdin.read().strip()
     sentences = sentences.split("\n")
     for sentence in sentences:
-        print(_get_entity_tuples_from_sentence(sentence, args.word_emb_model, args.word_emb_dim))
+        print(_get_entity_tuples_from_sentence(sentence, args.word_emb_model, args.word_emb_dim, args.use_epoch))
