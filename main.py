@@ -9,10 +9,9 @@ from data_loader import getData
 from train import train
 from model_testing import model_testing
 
-
 DEVICE = torch.device("cpu")
 
-def main(mode, loss_function, hidden_layers, nheads, lr, dropout, regularization, weight_decay, n_epoch, save_every): 
+def main(mode, loss_function, hidden_layers, nheads, lr, dropout, regularization, weight_decay, n_epoch, save_every, word_emb_model): 
     if regularization==True:
         weight_decay==weight_decay
     else:
@@ -30,14 +29,14 @@ def main(mode, loss_function, hidden_layers, nheads, lr, dropout, regularization
         train_dataset, valid_dataset, test_dataset = getData()
         print('Data loading ...')
         if mode == "train":
-            train(train_dataset, valid_dataset, DEVICE, dropout, hidden_layers, nheads, n_epoch, lr, regularization)
+            train(train_dataset, valid_dataset, DEVICE, dropout, hidden_layers, nheads, n_epoch, lr, regularization, word_emb_model)
         if mode == "test":
             #print(test_dataset)
             model_testing(test_dataset, DEVICE, dropout, hidden_layers, nheads)
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Indonesian NER')
     parser.add_argument("--mode", type=str, default="all", help="use which mode type: train/test/all")
-    parser.add_argument("--loss_function", type=str, default="BCE", help="use which loss type: BCE/MSE")
+    parser.add_argument("--loss_function", type=str, default="CE", help="use which loss type: CE (CrossEntropy)")
     parser.add_argument("--hidden_layers", type=int, default=2, help="the number of hidden layers")
     parser.add_argument("--nheads", type=int, default=3, help="the number of heads attention")
     parser.add_argument("--lr", type=float, default=0.005, help="use to define learning rate hyperparameter")
@@ -46,7 +45,9 @@ if __name__ == "__main__":
     parser.add_argument("--regularization", type=bool, default=False, help="use to define regularization: True/False")
     parser.add_argument("--save_every", type=int, default=1, help="save model in every n epochs")
     parser.add_argument("--n_epoch", type=int, default=50, help="train model in total n epochs")
+    parser.add_argument("--word_emb_model", type=str, default="spacy", help="spacy/fasttext")
+    
     
     args = parser.parse_args()
     main(args.mode, args.loss_function, args.hidden_layers, args.nheads, args.lr, args.dropout, args.regularization, args.weight_decay, \
-         args.n_epoch, args.save_every)
+         args.n_epoch, args.save_every, args.word_emb_model)

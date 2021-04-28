@@ -51,7 +51,7 @@ def loss_fn(preds:list, labels):
     avg_loss = (start_loss + end_loss) / 2
     return avg_loss
 
-def train(train_dataset, validation_dataset, device, dropout, hidden_layer, nheads, epochs=20, lr=0.01, regularization=False, saving_dir="models", 
+def train(train_dataset, validation_dataset, device, dropout, hidden_layer, nheads, epochs, lr, regularization, word_emb_model, saving_dir="models", 
           word_embedding_dim=96, weight_decay=1e-5):
     import visdom
     viz = visdom.Visdom()
@@ -59,7 +59,7 @@ def train(train_dataset, validation_dataset, device, dropout, hidden_layer, nhea
     if not path.exists(saving_dir):
         os.makedirs(saving_dir)
     sentences = getSentences(train_dataset)
-    data = get_data_from_sentences(sentences)
+    data = get_data_from_sentences(sentences, word_emb_model)
     
     val_sentences = getSentences(validation_dataset)
     val_data = get_data_from_sentences(val_sentences)
