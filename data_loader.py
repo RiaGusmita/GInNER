@@ -108,7 +108,7 @@ def get_data_from_sentences_fasttext(sentences, word_emb):
             if word == _partial_word:
                 continue
             words.append(word)
-            word_vector = word_emb.get_word_vector(word)
+            word_vector = get_vector_fasttext(word, word_emb)
             vector = word_vector
             entity_num = get_entity_num(entity)
             word_data.append(vector)

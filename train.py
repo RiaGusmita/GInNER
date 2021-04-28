@@ -54,8 +54,6 @@ def loss_fn(preds:list, labels):
 
 def train(train_dataset, validation_dataset, device, dropout, hidden_layer, nheads, epochs, lr, regularization, word_emb_model, word_emb, word_embedding_dim,
           saving_dir="models", weight_decay=1e-5):
-    import visdom
-    viz = visdom.Visdom()
     
     if not path.exists(saving_dir):
         os.makedirs(saving_dir)
@@ -82,7 +80,6 @@ def train(train_dataset, validation_dataset, device, dropout, hidden_layer, nhea
     else:    
         optimizer = optim.Adam(ginner.parameters(), lr=lr)
     
-    viz.line([[0.0], [0.0]], [0.], win='{}_loss'.format("train"), opts=dict(title='train loss', legend=['train loss', 'validation loss']))
     arEpochs = []
     losses = {'train set':[], 'val set': []}
     for i in range(1,epochs+1):
@@ -145,7 +142,6 @@ def train(train_dataset, validation_dataset, device, dropout, hidden_layer, nhea
         losses['train set'].append(total_loss)
         losses['val set'].append(total_val_loss)
         showPlot(arEpochs, losses, "training_val_loss")
-        viz.line([[total_loss, total_val_loss]], [i], win='{}_loss'.format("train"), update='append')
         
 def accuracy(output, labels):
     #logits_scores, pred = torch.max(output, 1, keepdim=True)
