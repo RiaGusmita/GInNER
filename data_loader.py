@@ -212,10 +212,10 @@ def get_words_embeddings_from_sentence_fasttext(sentence, word_emb):
     return vectors
 
 def get_vector_fasttext(word, word_emb):
-    try:
-        vec = word_emb.get_word_vector(word)
-    except:
-        vec = np.zeros([word_emb.get_dimension(),])
+    #try:
+    vec = word_emb.get_word_vector(word)
+    #except:
+    #    vec = np.zeros([word_emb.get_dimension(),])
     return vec
 
 def _get_word_vectors_from_tokens(tokens):
