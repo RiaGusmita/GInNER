@@ -35,7 +35,6 @@ def model_testing(test_dataset, device, dropout, hidden_layer, nheads, word_emb_
     for item in tqdm(data):
         words = item[0]
         labels = torch.LongTensor(item[2])
-        #labels = labels.to(device).type(torch.LongTensor)
         word_embeddings = item[1]
         sentence = createFullSentence(words)
         try:           

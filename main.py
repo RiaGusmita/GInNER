@@ -11,7 +11,7 @@ from model_testing import model_testing
 import fasttext
 import fasttext.util
 
-from transformers import BertTokenizer, AutoModel
+#from transformers import BertTokenizer, AutoModel
 
 
 DEVICE = torch.device("cpu")
@@ -34,9 +34,9 @@ def main(mode, loss_function, hidden_layers, nheads, lr, dropout, regularization
     if word_emb_model=="fasttext":
         word_emb = fasttext.load_model('cc.id.300.bin')
         word_emb = fasttext.util.reduce_model(word_emb, word_emb_dim)
-    elif word_emb_model=="indobert":
-        tokenizer = BertTokenizer.from_pretrained("indobenchmark/indobert-base-p1")
-        model = AutoModel.from_pretrained("indobenchmark/indobert-base-p1")
+    #elif word_emb_model=="indobert":
+    #    tokenizer = BertTokenizer.from_pretrained("indobenchmark/indobert-base-p1")
+    #    model = AutoModel.from_pretrained("indobenchmark/indobert-base-p1")
     
     if mode == "train" or mode =="test" or mode=="all":
         train_dataset, valid_dataset, test_dataset = getData()
