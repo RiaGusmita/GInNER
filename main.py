@@ -30,7 +30,7 @@ def main(mode, loss_function, hidden_layers, nheads, lr, dropout, regularization
         train_dataset, valid_dataset, test_dataset = getData()
         print('Data loading ...')
         if mode == "train":
-            train(train_dataset, valid_dataset, DEVICE, dropout, hidden_layers, nheads, n_epoch)
+            train(train_dataset, valid_dataset, DEVICE, dropout, hidden_layers, nheads, n_epoch, lr, regularization)
         if mode == "test":
             #print(test_dataset)
             model_testing(test_dataset, DEVICE, dropout, hidden_layers, nheads)

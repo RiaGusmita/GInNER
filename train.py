@@ -51,8 +51,8 @@ def loss_fn(preds:list, labels):
     avg_loss = (start_loss + end_loss) / 2
     return avg_loss
 
-def train(train_dataset, validation_dataset, device, dropout, hidden_layer, nheads, epochs=20, saving_dir="models", 
-          word_embedding_dim=96, bucket_size=5, regularization=False, lr=0.01, weight_decay=1e-5):
+def train(train_dataset, validation_dataset, device, dropout, hidden_layer, nheads, epochs=20, lr=0.01, regularization=False, saving_dir="models", 
+          word_embedding_dim=96, weight_decay=1e-5):
     import visdom
     viz = visdom.Visdom()
     
@@ -74,7 +74,7 @@ def train(train_dataset, validation_dataset, device, dropout, hidden_layer, nhea
     if regularization:
         optimizer = optim.Adam(ginner.parameters(), lr=lr, weight_decay=weight_decay)
     else:    
-        optimizer = optim.Adam(ginner.parameters(), lr=0.001)
+        optimizer = optim.Adam(ginner.parameters(), lr=lr)
     
     viz.line([[0.0], [0.0]], [0.], win='{}_loss'.format("train"), opts=dict(title='train loss', legend=['train loss', 'validation loss']))
     
