@@ -6,7 +6,6 @@ import os.path as path
 import torch
 from data_loader import getSentences, get_data_from_sentences, createFullSentence, create_graph_from_sentence_and_word_vectors, get_class_name, get_data_from_sentences_fasttext
 from tqdm import tqdm
-import torch
 from sklearn.metrics import recall_score, precision_score, f1_score
 import logging
 import random
@@ -41,12 +40,8 @@ def model_testing(test_dataset, device, dropout, hidden_layer, nheads, word_emb_
         sentence = createFullSentence(words)
         try:           
             A, X = create_graph_from_sentence_and_word_vectors(sentence, word_embeddings)
-            #print("A", A.shape[0])
-            #print("X", len(X))
-                        
             output_tensor = ginner(X, A)
             output_tensor = output_tensor
-            #print(output_tensor.shape)
             logits_scores, logits_tags = torch.max(output_tensor, 1, keepdim=True)
             logits_label = logits_tags.detach().cpu().numpy().tolist()
             y_pred = [predict[0] for predict in logits_label]

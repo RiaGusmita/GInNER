@@ -11,6 +11,9 @@ from model_testing import model_testing
 import fasttext
 import fasttext.util
 
+from transformers import BertTokenizer, AutoModel
+
+
 DEVICE = torch.device("cpu")
 
 def main(mode, loss_function, hidden_layers, nheads, lr, dropout, regularization, weight_decay, n_epoch, save_every, word_emb_model, word_emb_dim): 
@@ -31,6 +34,9 @@ def main(mode, loss_function, hidden_layers, nheads, lr, dropout, regularization
     if word_emb_model=="fasttext":
         word_emb = fasttext.load_model('cc.id.300.bin')
         word_emb = fasttext.util.reduce_model(word_emb, word_emb_dim)
+    elif word_emb_model=="indobert":
+        tokenizer = BertTokenizer.from_pretrained("indobenchmark/indobert-base-p1")
+        model = AutoModel.from_pretrained("indobenchmark/indobert-base-p1")
     
     if mode == "train" or mode =="test" or mode=="all":
         train_dataset, valid_dataset, test_dataset = getData()
@@ -39,7 +45,7 @@ def main(mode, loss_function, hidden_layers, nheads, lr, dropout, regularization
             train(train_dataset, valid_dataset, DEVICE, dropout, hidden_layers, nheads, n_epoch, lr, regularization, word_emb_model, word_emb, word_emb_dim)
         if mode == "test":
             #print(test_dataset)
-            model_testing(test_dataset, DEVICE, dropout, hidden_layers, nheads, word_emb_model, word_emb, n_epoch)
+            model_testing(test_dataset, DEVICE, dropout, hidden_layers, nheads, word_emb_model, word_emb, n_epoch, word_emb_dim)
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Indonesian NER')
     parser.add_argument("--mode", type=str, default="all", help="use which mode type: train/test/all")
