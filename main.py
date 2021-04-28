@@ -39,7 +39,7 @@ def main(mode, loss_function, hidden_layers, nheads, lr, dropout, regularization
             train(train_dataset, valid_dataset, DEVICE, dropout, hidden_layers, nheads, n_epoch, lr, regularization, word_emb_model, word_emb)
         if mode == "test":
             #print(test_dataset)
-            model_testing(test_dataset, DEVICE, dropout, hidden_layers, nheads, word_emb_model, word_emb)
+            model_testing(test_dataset, DEVICE, dropout, hidden_layers, nheads, word_emb_model, word_emb, n_epoch)
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Indonesian NER')
     parser.add_argument("--mode", type=str, default="all", help="use which mode type: train/test/all")
