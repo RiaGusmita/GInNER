@@ -30,7 +30,7 @@ def main(mode, loss_function, hidden_layers, nheads, lr, dropout, regularization
     word_emb=""
     if word_emb_model=="fasttext":
         word_emb = fasttext.load_model('cc.id.300.bin')
-        word_emb = fasttext.util.reduce_model(word_emb, 100)
+        word_emb = fasttext.util.reduce_model(word_emb, 96)
     
     if mode == "train" or mode =="test" or mode=="all":
         train_dataset, valid_dataset, test_dataset = getData()
