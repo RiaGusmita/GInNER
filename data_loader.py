@@ -99,23 +99,14 @@ def get_data_from_sentences(sentences, word_emb_model):
     return all_data
 
 def get_word_vector(word, word_emb_model):
-    if word_emb_model =="fasttext":
-        parser = ft
-        try:
-            vector = parser.get_word_vector(word)
-        except:
-            vector = np.zeros([parser.get_dimension(),])
-    
-    if word_emb_model=="spacy":
-        parsed = parser(word)
-        default_vector = parser('entity')[0].vector
-        try:
-            vector = parsed[0].vector
-            #print(vector.shape)
-            if vector_is_empty(vector):
-                vector = default_vector
-        except:
+    parsed = parser(word)
+    default_vector = parser('entity')[0].vector
+    try:
+        vector = parsed[0].vector
+        if vector_is_empty(vector):
             vector = default_vector
+    except:
+        vector = default_vector
         
     return np.array(vector, dtype=np.float64) 
 
