@@ -11,7 +11,7 @@ import torch
 import fasttext
 import fasttext.util
 
-ft = fasttext.load_model('cc.id.300.bin')
+#ft = fasttext.load_model('cc.id.300.bin')
 
 parser = spacy.load("id_spacy")
 
