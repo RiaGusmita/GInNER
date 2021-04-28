@@ -13,7 +13,7 @@ import fasttext.util
 
 DEVICE = torch.device("cpu")
 
-def main(mode, loss_function, hidden_layers, nheads, lr, dropout, regularization, weight_decay, n_epoch, save_every, word_emb_model): 
+def main(mode, loss_function, hidden_layers, nheads, lr, dropout, regularization, weight_decay, n_epoch, save_every, word_emb_model, word_emb_dim): 
     if regularization==True:
         weight_decay==weight_decay
     else:
@@ -30,13 +30,13 @@ def main(mode, loss_function, hidden_layers, nheads, lr, dropout, regularization
     word_emb=""
     if word_emb_model=="fasttext":
         word_emb = fasttext.load_model('cc.id.300.bin')
-        word_emb = fasttext.util.reduce_model(word_emb, 96)
+        word_emb = fasttext.util.reduce_model(word_emb, word_emb_dim)
     
     if mode == "train" or mode =="test" or mode=="all":
         train_dataset, valid_dataset, test_dataset = getData()
         print('Data loading ...')
         if mode == "train":
-            train(train_dataset, valid_dataset, DEVICE, dropout, hidden_layers, nheads, n_epoch, lr, regularization, word_emb_model, word_emb)
+            train(train_dataset, valid_dataset, DEVICE, dropout, hidden_layers, nheads, n_epoch, lr, regularization, word_emb_model, word_emb, word_emb_dim)
         if mode == "test":
             #print(test_dataset)
             model_testing(test_dataset, DEVICE, dropout, hidden_layers, nheads, word_emb_model, word_emb, n_epoch)
@@ -53,8 +53,9 @@ if __name__ == "__main__":
     parser.add_argument("--save_every", type=int, default=1, help="save model in every n epochs")
     parser.add_argument("--n_epoch", type=int, default=50, help="train model in total n epochs")
     parser.add_argument("--word_emb_model", type=str, default="spacy", help="spacy/fasttext")
+    parser.add_argument("--word_emb_dim", type=int, default=96, help="word embedding dimension")
     
     
     args = parser.parse_args()
     main(args.mode, args.loss_function, args.hidden_layers, args.nheads, args.lr, args.dropout, args.regularization, args.weight_decay, \
-         args.n_epoch, args.save_every, args.word_emb_model)
+         args.n_epoch, args.save_every, args.word_emb_model, args.word_emb_dim)

@@ -192,17 +192,31 @@ def create_graph_from_sentence_and_word_vectors(sentence, word_vectors):
     #print(X)
     return A, torch.tensor(X)
 
-def get_words_embeddings_from_sentence(sentence, word_emb_model):
+def get_words_embeddings_from_sentence(sentence):
     sentence = re.sub(r'([a-zA-Z]+)-([a-zA-Z]+)', r' \1_\2 ', sentence)
-    if word_emb_model == "spacy":
-        tokens = parser(sentence)
-        print(tokens)
     
-    if word_emb_model == "fasttext":
-        parser = ft
-        
+    tokens = parser(sentence)
+    print("Tokens", tokens)
+    
     return _get_word_vectors_from_tokens(tokens)
 
+def get_words_embeddings_from_sentence_fasttext(sentence, word_emb):
+    sentence = re.sub(r'([a-zA-Z]+)-([a-zA-Z]+)', r' \1_\2 ', sentence)
+    
+    tokens = sentence.split(" ")
+    print("Tokens", sentence)
+    vectors = []
+    for token in tokens:
+        vectors.append(get_vector_fasttext(token, word_emb))
+    
+    return vectors
+
+def get_vector_fasttext(word, word_emb):
+    try:
+        vec = word_emb.get_word_vector(word)
+    except:
+        vec = np.zeros([word_emb.get_dimension(),])
+    return vec
 
 def _get_word_vectors_from_tokens(tokens):
     words = []

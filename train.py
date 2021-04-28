@@ -9,6 +9,7 @@ from torch import optim
 import torch
 import os
 import os.path as path
+import matplotlib.pyplot as plt
 
 def get_chunks(l, n):
     return [l[i:i + n] for i in range(0, len(l), n)]
@@ -51,8 +52,8 @@ def loss_fn(preds:list, labels):
     avg_loss = (start_loss + end_loss) / 2
     return avg_loss
 
-def train(train_dataset, validation_dataset, device, dropout, hidden_layer, nheads, epochs, lr, regularization, word_emb_model, word_emb, saving_dir="models", 
-          word_embedding_dim=96, weight_decay=1e-5):
+def train(train_dataset, validation_dataset, device, dropout, hidden_layer, nheads, epochs, lr, regularization, word_emb_model, word_emb, word_embedding_dim,
+          saving_dir="models", weight_decay=1e-5):
     import visdom
     viz = visdom.Visdom()
     
@@ -82,9 +83,10 @@ def train(train_dataset, validation_dataset, device, dropout, hidden_layer, nhea
         optimizer = optim.Adam(ginner.parameters(), lr=lr)
     
     viz.line([[0.0], [0.0]], [0.], win='{}_loss'.format("train"), opts=dict(title='train loss', legend=['train loss', 'validation loss']))
-    
-    for i in range(epochs):
-        #random_buckets = sorted(buckets, key=lambda x: random.random())
+    arEpochs = []
+    losses = {'train set':[], 'val set': []}
+    for i in range(1,epochs+1):
+        arEpochs.append(i)
         sys.stderr.write('--------- Epoch ' + str(i) + ' ---------\n')
         ginner.train()
         total_sentences = 0
@@ -140,6 +142,9 @@ def train(train_dataset, validation_dataset, device, dropout, hidden_layer, nhea
                     "loss": total_loss
                     }, path.join(saving_dir, "checkpoint_epoch_{}.pt".format(i)))
         print("epoch: {}".format(i), "training loss", total_loss, "validation loss", total_val_loss, "acc", total_val_acc)
+        losses['train set'].append(total_loss)
+        losses['val set'].append(total_val_loss)
+        showPlot(arEpochs, losses, "training_val_loss")
         viz.line([[total_loss, total_val_loss]], [i], win='{}_loss'.format("train"), update='append')
         
 def accuracy(output, labels):
@@ -160,4 +165,19 @@ def accuracy(output, labels):
     #print(acc)
     #print("###")
     return acc 
-    
+
+'''Used to plot the progress of training. Plots the loss value vs. time'''
+def showPlot(epochs, losses, fig_name):
+    colors = ('red','blue')
+    x_axis_label = 'Epochs'
+    i = 0
+    for key, losses in losses.items():
+      if len(losses) > 0:
+        plt.plot(epochs, losses, label=key, color=colors[i])
+        i += 1
+    plt.legend(loc='upper left')
+    plt.xlabel(x_axis_label)
+    plt.ylabel('Loss')
+    plt.title('Training Results')
+    plt.savefig(fig_name+'.png')
+    plt.close('all')
