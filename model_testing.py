@@ -13,7 +13,7 @@ import random
 
 _logger = logging.getLogger(__name__)
 
-def model_testing(test_dataset, device, dropout, hidden_layer, nheads, word_emb_model, word_emb, word_embedding_dim=96):
+def model_testing(test_dataset, device, dropout, hidden_layer, nheads, word_emb_model, word_emb, n_epoch, word_embedding_dim=96):
     #print(test_dataset)
     
     sentences = getSentences(test_dataset)
@@ -24,7 +24,7 @@ def model_testing(test_dataset, device, dropout, hidden_layer, nheads, word_emb_
     else:
         data = get_data_from_sentences(sentences)
     ginner = GInNER(word_embedding_dim, device, dropout, hidden_layer, nheads)
-    checkpoint = torch.load(path.join("models", "checkpoint_epoch_{}.pt".format(49)))
+    checkpoint = torch.load(path.join("models", "checkpoint_epoch_{}.pt".format(n_epoch-1)))
     ginner.load_state_dict(checkpoint["model_state_dict"])
     print(ginner)
     ginner.to(device)
