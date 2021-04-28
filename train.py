@@ -60,13 +60,14 @@ def train(train_dataset, validation_dataset, device, dropout, hidden_layer, nhea
         os.makedirs(saving_dir)
     
     sentences = getSentences(train_dataset)
+    val_sentences = getSentences(validation_dataset)
     
     if word_emb_model =="fasttext":
         data = get_data_from_sentences_fasttext(sentences, word_emb)
+        val_data = get_data_from_sentences_fasttext(val_sentences, word_emb)
     else:
         data = get_data_from_sentences(sentences)
-    val_sentences = getSentences(validation_dataset)
-    val_data = get_data_from_sentences(val_sentences)
+        val_data = get_data_from_sentences(val_sentences)
     
     loss_function = torch.nn.CrossEntropyLoss()
     
