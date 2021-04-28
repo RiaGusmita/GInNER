@@ -86,22 +86,22 @@ def train(train_dataset, validation_dataset, device, dropout, hidden_layer, nhea
         total_loss = 0
         #with torch.no_grad():
         for item in tqdm(data):
-            #try:
-            optimizer.zero_grad()    
-            words = item[0]
-            labels = torch.LongTensor(item[2])
-            word_embeddings = item[1]
-            sentence = createFullSentence(words)
-            A, X = create_graph_from_sentence_and_word_vectors(sentence, word_embeddings)
-            output_tensor = ginner(X, A)
-            loss = loss_function(output_tensor, labels).to(device)
-            loss.backward()
-            optimizer.step()
-            total_loss += loss.item()
-            total_sentences +=1
+            try:
+                optimizer.zero_grad()    
+                words = item[0]
+                labels = torch.LongTensor(item[2])
+                word_embeddings = item[1]
+                sentence = createFullSentence(words)
+                A, X = create_graph_from_sentence_and_word_vectors(sentence, word_embeddings)
+                output_tensor = ginner(X, A)
+                loss = loss_function(output_tensor, labels).to(device)
+                loss.backward()
+                optimizer.step()
+                total_loss += loss.item()
+                total_sentences +=1
                 
-            #except:
-                #pass
+            except:
+                pass
         total_loss = total_loss/total_sentences
         
         ginner.eval()
