@@ -6,12 +6,12 @@ import argparse
 import torch
 
 from data_loader import getData
-from train import train
+from train import train, train_indobert
 from model_testing import model_testing
 import fasttext
 import fasttext.util
 
-#from transformers import BertTokenizer, AutoModel
+from transformers import BertTokenizer, AutoModel
 
 
 DEVICE = torch.device("cpu")
@@ -34,15 +34,18 @@ def main(mode, loss_function, hidden_layers, nheads, lr, dropout, regularization
     if word_emb_model=="fasttext":
         word_emb = fasttext.load_model('cc.id.300.bin')
         word_emb = fasttext.util.reduce_model(word_emb, word_emb_dim)
-    #elif word_emb_model=="indobert":
-    #    tokenizer = BertTokenizer.from_pretrained("indobenchmark/indobert-base-p1")
-    #    model = AutoModel.from_pretrained("indobenchmark/indobert-base-p1")
+    elif word_emb_model=="indobert":
+        tokenizer = BertTokenizer.from_pretrained("indobenchmark/indobert-base-p1")
+        model = AutoModel.from_pretrained("indobenchmark/indobert-base-p1")
     
     if mode == "train" or mode =="test" or mode=="all":
         train_dataset, valid_dataset, test_dataset = getData()
         print('Data loading ...')
         if mode == "train":
-            train(train_dataset, valid_dataset, DEVICE, dropout, hidden_layers, nheads, n_epoch, lr, regularization, word_emb_model, word_emb, word_emb_dim)
+            if word_emb_model=="indobert":
+                train_indobert(train_dataset, valid_dataset, DEVICE, dropout, hidden_layers, nheads, n_epoch, lr, regularization, word_emb_model, model, tokenizer, word_emb_dim)
+            else:
+                train(train_dataset, valid_dataset, DEVICE, dropout, hidden_layers, nheads, n_epoch, lr, regularization, word_emb_model, word_emb, word_emb_dim)
         if mode == "test":
             #print(test_dataset)
             model_testing(test_dataset, DEVICE, dropout, hidden_layers, nheads, word_emb_model, word_emb, n_epoch, word_emb_dim)

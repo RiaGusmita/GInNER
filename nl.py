@@ -36,6 +36,7 @@ class SpacyParser:
             if item.orth_ in _invalid_words:
                 continue
             index = items_dict[item.idx]
+            #print("index", index)
             for child_index in [items_dict[l.idx] for l in item.children
                                 if not l.orth_ in _invalid_words]:
                 edges.append((index, child_index))
