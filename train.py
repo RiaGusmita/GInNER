@@ -230,24 +230,24 @@ def train_indobert(train_dataset, validation_dataset, device, dropout, hidden_la
         total_loss = 0
         broken_sentence = 0
         for item in tqdm(data):
-            #try:   
-            words = item[0]
-            labels = torch.LongTensor(item[2])
-            word_embeddings = item[1]
-            sentence = createFullSentence(words)
-            A, X = create_graph_from_sentence_and_word_vectors(sentence, word_embeddings)
-            output_tensor = ginner(X, A)
-            loss = loss_function(output_tensor, labels).to(device)
+            try:   
+                words = item[0]
+                labels = torch.LongTensor(item[2])
+                word_embeddings = item[1]
+                sentence = createFullSentence(words)
+                A, X = create_graph_from_sentence_and_word_vectors(sentence, word_embeddings)
+                output_tensor = ginner(X, A)
+                loss = loss_function(output_tensor, labels).to(device)
+                        
+                optimizer.zero_grad()
+                loss.backward()
+                optimizer.step()
                     
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
-                
-            total_loss += loss.item()
-            total_sentences +=1   
-            #except:
-            #    broken_sentence +=1
-            #    pass
+                total_loss += loss.item()
+                total_sentences +=1   
+            except:
+                broken_sentence +=1
+                pass
         total_loss = total_loss/total_sentences
         print("broken_sentence during training", broken_sentence)
         ginner.eval()
