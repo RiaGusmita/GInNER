@@ -254,7 +254,7 @@ def get_vector_indobert(word, tokenizer, model):
     subword_to_word_indices = torch.LongTensor(subword_to_word_indices).view(1, -1).to(model.device)
     word_embeddings = model(subwords, subword_to_word_indices)[0]
     vec = word_embeddings.squeeze().detach().cpu().numpy()
-    return vec[0]
+    return vec
 
 def _get_word_vectors_from_tokens(tokens):
     words = []
