@@ -10,6 +10,8 @@ import torch
 import os
 import os.path as path
 import matplotlib.pyplot as plt
+from sklearn.metrics import recall_score, precision_score, f1_score
+import numpy as np
 
 def get_chunks(l, n):
     return [l[i:i + n] for i in range(0, len(l), n)]
@@ -88,7 +90,7 @@ def train(train_dataset, validation_dataset, device, dropout, hidden_layer, nhea
         ginner.train()
         total_sentences = 0
         total_loss = 0
-        #with torch.no_grad():
+        broken_sentence = 0
         for item in tqdm(data):
             try:
                 optimizer.zero_grad()    
@@ -105,14 +107,18 @@ def train(train_dataset, validation_dataset, device, dropout, hidden_layer, nhea
                 total_sentences +=1
                 
             except:
+                broken_sentence += 1
                 pass
         total_loss = total_loss/total_sentences
-        
+        print("broken sentence during training", broken_sentence)
         ginner.eval()
         total_val_sentences = 0
         total_val_loss = 0
         total_val_acc = 0
         #with torch.no_grad():
+        list_f1_score_micro = []
+        best_f1_score_micro = 0
+        broken_sentence = 0
         with torch.no_grad():
             for item in tqdm(val_data):
                 try:
@@ -123,43 +129,55 @@ def train(train_dataset, validation_dataset, device, dropout, hidden_layer, nhea
                     A, X = create_graph_from_sentence_and_word_vectors(sentence, word_embeddings)
                     output_tensor = ginner(X, A)
                     val_loss = loss_function(output_tensor, labels).to(device)
+                    logits_scores, logits_tags = torch.max(output_tensor, 1, keepdim=True)
+                    logits_label = logits_tags.detach().cpu().numpy().tolist()
+                    y_pred = [predict[0] for predict in logits_label]
+                    y_true = labels.detach().cpu().numpy().tolist()
+                    f1_score_micro = f1_score(y_true, y_pred, average='micro')
+                    list_f1_score_micro.append(f1_score_micro)
                     total_val_loss += val_loss.item()
                         
                     acc_val = accuracy(output_tensor, labels)
                     total_val_acc += acc_val
                     total_val_sentences +=1
                 except:
+                    broken_sentence +=1
                     pass
         total_val_loss = total_val_loss/total_val_sentences
         total_val_acc = total_val_acc/total_val_sentences
+        avg_f1_scores_micro = sum(list_f1_score_micro)/len(list_f1_score_micro)
+        if avg_f1_scores_micro > best_f1_score_micro:
+            torch.save({
+                    "epoch": i,
+                    "model_state_dict": ginner.state_dict(),
+                    "optimizer_state_dict": optimizer.state_dict(),
+                    "loss": total_loss
+                    }, path.join(saving_dir, "best_model.pt".format(i)))
+    
         torch.save({
                     "epoch": i,
                     "model_state_dict": ginner.state_dict(),
                     "optimizer_state_dict": optimizer.state_dict(),
                     "loss": total_loss
                     }, path.join(saving_dir, "checkpoint_epoch_{}.pt".format(i)))
+        torch.save({
+                    "epoch": i,
+                    "model_state_dict": ginner.state_dict(),
+                    "optimizer_state_dict": optimizer.state_dict(),
+                    "loss": total_loss
+                    }, path.join(saving_dir, "final_model.pt".format(i)))
+        print("broken sentence during testing", broken_sentence)
         print("epoch: {}".format(i), "training loss", total_loss, "validation loss", total_val_loss, "acc", total_val_acc)
         losses['train set'].append(total_loss)
         losses['val set'].append(total_val_loss)
         showPlot(arEpochs, losses, "training_val_loss")
         
 def accuracy(output, labels):
-    #logits_scores, pred = torch.max(output, 1, keepdim=True)
-    #logits_label = logits_tags.detach().cpu().numpy().tolist()
-    #y_pred = [predict[0] for predict in logits_label]
-    
     preds = output.max(1)[1].type_as(labels)
-    #print(preds)
-    #print(labels)
-    
     correct = preds.eq(labels).double()
-    #print(correct)
     correct = correct.sum()
-    #print(correct)
     correct = correct.detach().cpu().numpy()
     acc = correct / len(labels)
-    #print(acc)
-    #print("###")
     return acc 
 
 '''Used to plot the progress of training. Plots the loss value vs. time'''
@@ -177,3 +195,149 @@ def showPlot(epochs, losses, fig_name):
     plt.title('Training Results')
     plt.savefig(fig_name+'.png')
     plt.close('all')
+
+def train_indobert(train_dataset, validation_dataset, device, dropout, hidden_layer, nheads, epochs, lr, regularization, word_emb_model, model, tokenizer, word_embedding_dim,
+          saving_dir="models", weight_decay=1e-5):
+    
+    if not path.exists(saving_dir):
+        os.makedirs(saving_dir)
+    
+    sentences = getSentences(train_dataset)
+    val_sentences = getSentences(validation_dataset)
+    data = get_data_from_sentences(sentences)
+    val_data = get_data_from_sentences(val_sentences)
+    
+    loss_function = torch.nn.CrossEntropyLoss()
+    
+    print("total data", len(data))
+    word_embedding_dim = 768
+    ginner = GInNER(word_embedding_dim, device, dropout, hidden_layer, nheads)
+    print(ginner)
+    if regularization:
+        optimizer = optim.Adam(ginner.parameters(), lr=lr, weight_decay=weight_decay)
+    else:    
+        optimizer = optim.Adam(ginner.parameters(), lr=lr)
+    
+    arEpochs = []
+    losses = {'train set':[], 'val set': []}
+    for i in range(1,epochs+1):
+        arEpochs.append(i)
+        sys.stderr.write('--------- Epoch ' + str(i) + ' ---------\n')
+        ginner.train()
+        total_sentences = 0
+        total_loss = 0
+        broken_sentence = 0
+        for item in tqdm(data):
+            try:   
+                words = item[0]
+                labels = torch.LongTensor(item[2])
+                sentence = createFullSentence(words)
+                #print("sentence length", len(sentence.split(" ")))
+                subwords, subword_to_word_indices = word_subword_tokenize(sentence, tokenizer)
+        
+                subwords = torch.LongTensor(subwords).view(1, -1).to(model.device)
+                subword_to_word_indices = torch.LongTensor(subword_to_word_indices).view(1, -1).to(model.device)
+                word_embeddings = model(subwords, subword_to_word_indices)[0]
+                word_embeddings = word_embeddings.squeeze().detach().cpu().numpy()
+                #print("word embedding", word_embeddings.shape)
+                
+                A, X = create_graph_from_sentence_and_word_vectors(sentence, word_embeddings)
+                #print("A", A.shape)
+                #print("X", X.shape)
+                output_tensor = ginner(X, A)
+                loss = loss_function(output_tensor, labels).to(device)
+                    
+                optimizer.zero_grad()
+                loss.backward()
+                optimizer.step()
+                total_loss += loss.item()
+                total_sentences +=1   
+            except:
+                broken_sentence +=1
+                pass
+        total_loss = total_loss/total_sentences
+        print("broken_sentence during training", broken_sentence)
+        ginner.eval()
+        total_val_sentences = 0
+        total_val_loss = 0
+        total_val_acc = 0
+        #with torch.no_grad():
+        list_f1_score_micro = []
+        best_f1_score_micro = 0
+        broken_sentence = 0
+        with torch.no_grad():
+            for item in tqdm(val_data):
+                try:
+                    words = item[0]
+                    labels = torch.LongTensor(item[2])
+                    #word_embeddings = item[1]
+                    sentence = createFullSentence(words)
+                    #print("sentence length", len(sentence.split(" ")))
+                    subwords, subword_to_word_indices = word_subword_tokenize(sentence, tokenizer)
+        
+                    subwords = torch.LongTensor(subwords).view(1, -1).to(model.device)
+                    subword_to_word_indices = torch.LongTensor(subword_to_word_indices).view(1, -1).to(model.device)
+                    word_embeddings = model(subwords, subword_to_word_indices)[0]
+                    word_embeddings = word_embeddings.squeeze().detach().cpu().numpy()
+                    #print("word embedding", word_embeddings.shape)
+                    A, X = create_graph_from_sentence_and_word_vectors(sentence, word_embeddings)
+                    output_tensor = ginner(X, A)
+                    val_loss = loss_function(output_tensor, labels).to(device)
+                    logits_scores, logits_tags = torch.max(output_tensor, 1, keepdim=True)
+                    logits_label = logits_tags.detach().cpu().numpy().tolist()
+                    y_pred = [predict[0] for predict in logits_label]
+                    y_true = labels.detach().cpu().numpy().tolist()
+                    f1_score_micro = f1_score(y_true, y_pred, average='micro')
+                    list_f1_score_micro.append(f1_score_micro)
+                    total_val_loss += val_loss.item()
+                        
+                    acc_val = accuracy(output_tensor, labels)
+                    total_val_acc += acc_val
+                    total_val_sentences +=1
+                except:
+                    broken_sentence +=1
+                    pass
+        total_val_loss = total_val_loss/total_val_sentences
+        total_val_acc = total_val_acc/total_val_sentences
+        avg_f1_scores_micro = sum(list_f1_score_micro)/len(list_f1_score_micro)
+        if avg_f1_scores_micro > best_f1_score_micro:
+            torch.save({
+                    "epoch": i,
+                    "model_state_dict": ginner.state_dict(),
+                    "optimizer_state_dict": optimizer.state_dict(),
+                    "loss": total_loss
+                    }, path.join(saving_dir, "best_model.pt".format(i)))
+    
+        torch.save({
+                    "epoch": i,
+                    "model_state_dict": ginner.state_dict(),
+                    "optimizer_state_dict": optimizer.state_dict(),
+                    "loss": total_loss
+                    }, path.join(saving_dir, "checkpoint_epoch_{}.pt".format(i)))
+        torch.save({
+                    "epoch": i,
+                    "model_state_dict": ginner.state_dict(),
+                    "optimizer_state_dict": optimizer.state_dict(),
+                    "loss": total_loss
+                    }, path.join(saving_dir, "final_model.pt".format(i)))
+        print("broken sentence during validation", broken_sentence)
+        print("epoch: {}".format(i), "training loss", total_loss, "validation loss", total_val_loss, "acc", total_val_acc)
+        losses['train set'].append(total_loss)
+        losses['val set'].append(total_val_loss)
+        showPlot(arEpochs, losses, "training_val_loss")
+    
+def word_subword_tokenize(sentence, tokenizer):
+    # Add CLS token
+    subwords = []#[tokenizer.cls_token_id]
+    subword_to_word_indices = []#[-1] # For CLS
+
+    # Add subwords
+    for word_idx, word in enumerate(sentence.split(" ")):
+        subword_list = tokenizer.encode(word, add_special_tokens=False)
+        if len(subword_list)>1:
+            subword_list = [round(np.average(subword_list))]
+        subword_to_word_indices += [word_idx for i in range(len(subword_list))]
+            
+        subwords += subword_list
+
+    return subwords, subword_to_word_indices

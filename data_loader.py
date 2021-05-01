@@ -92,7 +92,6 @@ def get_data_from_sentences(sentences):
             total_tokens += 1
         all_data.append((words, word_data, class_data, class_text))
     return all_data
-
 def get_data_from_sentences_fasttext(sentences, word_emb):
     all_data = []
     A = np.zeros((len(classes) + 1, len(classes) + 1))
