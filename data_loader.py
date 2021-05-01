@@ -135,7 +135,7 @@ def get_data_from_sentences_indobert(sentences, tokenizer, model):
                 continue
             words.append(word)
             word_vector = get_vector_indobert(word, tokenizer, model)
-            print("word_vector", word_vector)
+            #print("word_vector", word_vector)
             vector = word_vector
             entity_num = get_entity_num(entity)
             word_data.append(vector)
