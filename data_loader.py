@@ -246,8 +246,8 @@ def get_vector_fasttext(word, word_emb):
     #    vec = np.zeros([word_emb.get_dimension(),])
     return vec
 
-def get_vector_indobert(word, tokenize, model):
-    subwords, subword_to_word_indices = word_subword_tokenize(sentence, tokenizer)
+def get_vector_indobert(word, tokenizer, model):
+    subwords, subword_to_word_indices = word_subword_tokenize(word, tokenizer)
         
     subwords = torch.LongTensor(subwords).view(1, -1).to(model.device)
     subword_to_word_indices = torch.LongTensor(subword_to_word_indices).view(1, -1).to(model.device)
