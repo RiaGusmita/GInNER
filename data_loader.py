@@ -119,6 +119,33 @@ def get_data_from_sentences_fasttext(sentences, word_emb):
         all_data.append((words, word_data, class_data, class_text))
     return all_data
 
+def get_data_from_sentences_indobert(sentences, tokenizer, model):
+    all_data = []
+    A = np.zeros((len(classes) + 1, len(classes) + 1))
+    total_tokens = 0
+    for sentence in tqdm(sentences):
+        word_data = []
+        class_data = []
+        class_text = []
+        words = []
+        prior_entity = len(classes)
+        #print('sentence', sentence)
+        for word, entity in sentence:
+            if word == _partial_word:
+                continue
+            words.append(word)
+            word_vector = get_vector_indobert(word, tokenizer, model)
+            vector = word_vector
+            entity_num = get_entity_num(entity)
+            word_data.append(vector)
+            class_data.append(entity_num)
+            class_text.append(entity)
+            A[prior_entity, entity_num] += 1
+            prior_entity = entity_num
+            total_tokens += 1
+        all_data.append((words, word_data, class_data, class_text))
+    return all_data
+
 def get_word_vector(word):
     parsed = parser(word)
     default_vector = parser('entity')[0].vector
@@ -219,6 +246,15 @@ def get_vector_fasttext(word, word_emb):
     #    vec = np.zeros([word_emb.get_dimension(),])
     return vec
 
+def get_vector_indobert(word, tokenize, model):
+    subwords, subword_to_word_indices = word_subword_tokenize(sentence, tokenizer)
+        
+    subwords = torch.LongTensor(subwords).view(1, -1).to(model.device)
+    subword_to_word_indices = torch.LongTensor(subword_to_word_indices).view(1, -1).to(model.device)
+    word_embeddings = model(subwords, subword_to_word_indices)[0]
+    vec = word_embeddings.squeeze().detach().cpu().numpy()
+    return vec[0]
+
 def _get_word_vectors_from_tokens(tokens):
     words = []
     vectors = []
@@ -230,3 +266,19 @@ def _get_word_vectors_from_tokens(tokens):
         vectors.append(get_word_vector(word))
         idx.append([token.idx, token.idx + len(token.orth_)])
     return words, vectors, idx
+
+def word_subword_tokenize(sentence, tokenizer):
+    # Add CLS token
+    subwords = []#[tokenizer.cls_token_id]
+    subword_to_word_indices = []#[-1] # For CLS
+
+    # Add subwords
+    for word_idx, word in enumerate(sentence.split(" ")):
+        subword_list = tokenizer.encode(word, add_special_tokens=False)
+        if len(subword_list)>1:
+            subword_list = [round(np.average(subword_list))]
+        subword_to_word_indices += [word_idx for i in range(len(subword_list))]
+            
+        subwords += subword_list
+
+    return subwords, subword_to_word_indices

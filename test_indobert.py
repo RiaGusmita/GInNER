@@ -27,7 +27,7 @@ def word_subword_tokenize(sentence, tokenizer):
 
 tokenizer = BertTokenizer.from_pretrained("indobenchmark/indobert-base-p1")
 model = AutoModel.from_pretrained("indobenchmark/indobert-base-p1")
-text = "Ia menjadi terkenal dan '' The New York Times '' mencetak ucapan selamat Natal - nya kepada Amerika Serikat setiap tahun ."
+text = "Indonesia"
 subwords, subword_to_word_indices = word_subword_tokenize(text, tokenizer)
 
 subwords = torch.LongTensor(subwords).view(1, -1).to(model.device)

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from data_loader import getSentences, get_data_from_sentences, createFullSentence, create_graph_from_sentence_and_word_vectors, get_data_from_sentences_fasttext
+from data_loader import getSentences, get_data_from_sentences, createFullSentence, create_graph_from_sentence_and_word_vectors, get_data_from_sentences_fasttext, get_data_from_sentences_indobert
 from model import GInNER
 import sys
 from tqdm import tqdm
@@ -93,7 +93,6 @@ def train(train_dataset, validation_dataset, device, dropout, hidden_layer, nhea
         broken_sentence = 0
         for item in tqdm(data):
             try:
-                optimizer.zero_grad()    
                 words = item[0]
                 labels = torch.LongTensor(item[2])
                 word_embeddings = item[1]
@@ -101,11 +100,13 @@ def train(train_dataset, validation_dataset, device, dropout, hidden_layer, nhea
                 A, X = create_graph_from_sentence_and_word_vectors(sentence, word_embeddings)
                 output_tensor = ginner(X, A)
                 loss = loss_function(output_tensor, labels).to(device)
+                
+                optimizer.zero_grad()
                 loss.backward()
                 optimizer.step()
+                
                 total_loss += loss.item()
                 total_sentences +=1
-                
             except:
                 broken_sentence += 1
                 pass
@@ -129,14 +130,15 @@ def train(train_dataset, validation_dataset, device, dropout, hidden_layer, nhea
                     A, X = create_graph_from_sentence_and_word_vectors(sentence, word_embeddings)
                     output_tensor = ginner(X, A)
                     val_loss = loss_function(output_tensor, labels).to(device)
+                    
                     logits_scores, logits_tags = torch.max(output_tensor, 1, keepdim=True)
                     logits_label = logits_tags.detach().cpu().numpy().tolist()
                     y_pred = [predict[0] for predict in logits_label]
                     y_true = labels.detach().cpu().numpy().tolist()
                     f1_score_micro = f1_score(y_true, y_pred, average='micro')
                     list_f1_score_micro.append(f1_score_micro)
+                    
                     total_val_loss += val_loss.item()
-                        
                     acc_val = accuracy(output_tensor, labels)
                     total_val_acc += acc_val
                     total_val_sentences +=1
@@ -204,8 +206,8 @@ def train_indobert(train_dataset, validation_dataset, device, dropout, hidden_la
     
     sentences = getSentences(train_dataset)
     val_sentences = getSentences(validation_dataset)
-    data = get_data_from_sentences(sentences)
-    val_data = get_data_from_sentences(val_sentences)
+    data = get_data_from_sentences_indobert(sentences, tokenizer, model)
+    val_data = get_data_from_sentences_indobert(val_sentences, tokenizer, model)
     
     loss_function = torch.nn.CrossEntropyLoss()
     
@@ -231,25 +233,16 @@ def train_indobert(train_dataset, validation_dataset, device, dropout, hidden_la
             try:   
                 words = item[0]
                 labels = torch.LongTensor(item[2])
+                word_embeddings = item[1]
                 sentence = createFullSentence(words)
-                #print("sentence length", len(sentence.split(" ")))
-                subwords, subword_to_word_indices = word_subword_tokenize(sentence, tokenizer)
-        
-                subwords = torch.LongTensor(subwords).view(1, -1).to(model.device)
-                subword_to_word_indices = torch.LongTensor(subword_to_word_indices).view(1, -1).to(model.device)
-                word_embeddings = model(subwords, subword_to_word_indices)[0]
-                word_embeddings = word_embeddings.squeeze().detach().cpu().numpy()
-                #print("word embedding", word_embeddings.shape)
-                
                 A, X = create_graph_from_sentence_and_word_vectors(sentence, word_embeddings)
-                #print("A", A.shape)
-                #print("X", X.shape)
                 output_tensor = ginner(X, A)
                 loss = loss_function(output_tensor, labels).to(device)
                     
                 optimizer.zero_grad()
                 loss.backward()
                 optimizer.step()
+                
                 total_loss += loss.item()
                 total_sentences +=1   
             except:
@@ -270,27 +263,20 @@ def train_indobert(train_dataset, validation_dataset, device, dropout, hidden_la
                 try:
                     words = item[0]
                     labels = torch.LongTensor(item[2])
-                    #word_embeddings = item[1]
+                    word_embeddings = item[1]
                     sentence = createFullSentence(words)
-                    #print("sentence length", len(sentence.split(" ")))
-                    subwords, subword_to_word_indices = word_subword_tokenize(sentence, tokenizer)
-        
-                    subwords = torch.LongTensor(subwords).view(1, -1).to(model.device)
-                    subword_to_word_indices = torch.LongTensor(subword_to_word_indices).view(1, -1).to(model.device)
-                    word_embeddings = model(subwords, subword_to_word_indices)[0]
-                    word_embeddings = word_embeddings.squeeze().detach().cpu().numpy()
-                    #print("word embedding", word_embeddings.shape)
                     A, X = create_graph_from_sentence_and_word_vectors(sentence, word_embeddings)
                     output_tensor = ginner(X, A)
                     val_loss = loss_function(output_tensor, labels).to(device)
+                    
                     logits_scores, logits_tags = torch.max(output_tensor, 1, keepdim=True)
                     logits_label = logits_tags.detach().cpu().numpy().tolist()
                     y_pred = [predict[0] for predict in logits_label]
                     y_true = labels.detach().cpu().numpy().tolist()
                     f1_score_micro = f1_score(y_true, y_pred, average='micro')
                     list_f1_score_micro.append(f1_score_micro)
+                    
                     total_val_loss += val_loss.item()
-                        
                     acc_val = accuracy(output_tensor, labels)
                     total_val_acc += acc_val
                     total_val_sentences +=1
