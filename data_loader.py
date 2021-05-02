@@ -240,6 +240,19 @@ def get_words_embeddings_from_sentence_fasttext(sentence, word_emb):
         
     return words, vectors
 
+def get_words_embeddings_from_sentence_indobert(sentence, tokenizer, model):
+    sentence = re.sub(r'([a-zA-Z]+)-([a-zA-Z]+)', r' \1_\2 ', sentence)
+    
+    tokens = sentence.split(" ")
+    print("Tokens", sentence)
+    vectors = []
+    words = []
+    for token in tokens:
+        vectors.append(get_vector_indobert(token, tokenizer, model))
+        words.append(token)
+        
+    return words, vectors
+
 def get_vector_fasttext(word, word_emb):
     #try:
     vec = word_emb.get_word_vector(word)

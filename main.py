@@ -37,6 +37,7 @@ def main(mode, loss_function, hidden_layers, nheads, lr, dropout, regularization
     elif word_emb_model=="indobert":
         tokenizer = BertTokenizer.from_pretrained("indobenchmark/indobert-base-p1")
         model = AutoModel.from_pretrained("indobenchmark/indobert-base-p1")
+        word_emb = (tokenizer, model)
     
     if mode == "train" or mode =="test" or mode=="all":
         train_dataset, valid_dataset, test_dataset = getData()

@@ -4,7 +4,7 @@
 from model import GInNER
 import os.path as path
 import torch
-from data_loader import getSentences, get_data_from_sentences, createFullSentence, create_graph_from_sentence_and_word_vectors, get_class_name, get_data_from_sentences_fasttext
+from data_loader import getSentences, get_data_from_sentences, createFullSentence, create_graph_from_sentence_and_word_vectors, get_class_name, get_data_from_sentences_fasttext, get_data_from_sentences_indobert
 from tqdm import tqdm
 from sklearn.metrics import recall_score, precision_score, f1_score
 import logging
@@ -20,6 +20,9 @@ def model_testing(test_dataset, device, dropout, hidden_layer, nheads, word_emb_
     #print('len sentences', len(sentences))
     if word_emb_model =="fasttext":
         data = get_data_from_sentences_fasttext(sentences, word_emb)
+    elif word_emb_model =="indobert":
+        tokenizer, model = word_emb
+        data = get_data_from_sentences_indobert(sentences, tokenizer, model)
     else:
         data = get_data_from_sentences(sentences)
     ginner = GInNER(word_embedding_dim, device, dropout, hidden_layer, nheads)
