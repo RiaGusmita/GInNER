@@ -73,4 +73,4 @@ if __name__ == '__main__':
     sentences = sys.stdin.read().strip()
     sentences = sentences.split("\n")
     for sentence in sentences:
-        print(_get_entity_tuples_from_sentence(sentence, args.word_emb_model, args.word_emb_dim, args.use_epoch))
+        print(_get_entity_tuples_from_sentence(sentence, args.word_emb_model, args.word_emb_dim, args.ner_model))
