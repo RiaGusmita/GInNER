@@ -16,7 +16,7 @@ from transformers import BertTokenizer, AutoModel
 
 DEVICE = torch.device("cpu")
 
-def main(mode, loss_function, hidden_layers, nheads, lr, dropout, regularization, weight_decay, n_epoch, save_every, word_emb_model, word_emb_dim): 
+def main(mode, loss_function, hidden_layers, nheads, lr, dropout, regularization, weight_decay, n_epoch, save_every, word_emb_model, word_emb_dim, ner_model): 
     if regularization==True:
         weight_decay==weight_decay
     else:
@@ -49,7 +49,7 @@ def main(mode, loss_function, hidden_layers, nheads, lr, dropout, regularization
                 train(train_dataset, valid_dataset, DEVICE, dropout, hidden_layers, nheads, n_epoch, lr, regularization, word_emb_model, word_emb, word_emb_dim)
         if mode == "test":
             #print(test_dataset)
-            model_testing(test_dataset, DEVICE, dropout, hidden_layers, nheads, word_emb_model, word_emb, n_epoch, word_emb_dim)
+            model_testing(test_dataset, DEVICE, dropout, hidden_layers, nheads, word_emb_model, word_emb, ner_model, word_emb_dim)
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Indonesian NER')
     parser.add_argument("--mode", type=str, default="all", help="use which mode type: train/test/all")
@@ -64,8 +64,9 @@ if __name__ == "__main__":
     parser.add_argument("--n_epoch", type=int, default=50, help="train model in total n epochs")
     parser.add_argument("--word_emb_model", type=str, default="spacy", help="spacy/fasttext")
     parser.add_argument("--word_emb_dim", type=int, default=96, help="word embedding dimension")
+    parser.add_argument("--ner_model", type=int, default="final_model", help="word embedding dimension")
     
     
     args = parser.parse_args()
     main(args.mode, args.loss_function, args.hidden_layers, args.nheads, args.lr, args.dropout, args.regularization, args.weight_decay, \
-         args.n_epoch, args.save_every, args.word_emb_model, args.word_emb_dim)
+         args.n_epoch, args.save_every, args.word_emb_model, args.word_emb_dim, args.ner_model)
