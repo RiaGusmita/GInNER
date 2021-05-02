@@ -176,6 +176,9 @@ def train(train_dataset, validation_dataset, tag_to_idx, device, dropout, hidden
 def accuracy(outputs, labels):
     correct = 0
     labels = labels.detach().cpu().numpy()
+    print(labels)
+    print("len output", len(outputs))
+    print("len labels", len(labels))
     for i, output in enumerate(outputs):
         if output == labels[i]:
             correct += 1
