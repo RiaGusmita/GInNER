@@ -132,7 +132,7 @@ def train(train_dataset, validation_dataset, tag_to_idx, device, dropout, hidden
                 A, X = create_graph_from_sentence_and_word_vectors(sentence, word_embeddings)
                 logits_scores, logits_tags = ginner(X, A)
                 print("logits scores", logit_scores)
-                print("len logits scores", len(logit_scores))
+                print("len logits scores", logit_scores.shape)
                 val_loss = ginner.neg_log_likelihood(X, A, labels) 
                 y_pred = [predict for predict in logits_tags]
                 y_true = labels.detach().cpu().numpy()
