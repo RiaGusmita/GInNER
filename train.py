@@ -54,7 +54,7 @@ def loss_fn(preds:list, labels):
     avg_loss = (start_loss + end_loss) / 2
     return avg_loss
 
-def train(train_dataset, validation_dataset, device, dropout, hidden_layer, nheads, epochs, lr, regularization, word_emb_model, word_emb, word_embedding_dim,
+def train(train_dataset, validation_dataset, tag_to_idx, device, dropout, hidden_layer, nheads, epochs, lr, regularization, word_emb_model, word_emb, word_embedding_dim,
           saving_dir="models", weight_decay=1e-5):
     
     if not path.exists(saving_dir):
@@ -64,8 +64,8 @@ def train(train_dataset, validation_dataset, device, dropout, hidden_layer, nhea
     val_sentences = getSentences(validation_dataset)
     
     if word_emb_model =="fasttext":
-        data = get_data_from_sentences_fasttext(sentences, word_emb)
-        val_data = get_data_from_sentences_fasttext(val_sentences, word_emb)
+        data = get_data_from_sentences_fasttext(sentences, word_emb, tag_to_idx)
+        val_data = get_data_from_sentences_fasttext(val_sentences, word_emb, tag_to_idx)
     else:
         data = get_data_from_sentences(sentences)
         val_data = get_data_from_sentences(val_sentences)
@@ -75,7 +75,7 @@ def train(train_dataset, validation_dataset, device, dropout, hidden_layer, nhea
     print("total data", len(data))
     #buckets = bin_data_into_buckets(data, bucket_size)
     #print("buckets", len(buckets))
-    ginner = GInNER(word_embedding_dim, device, dropout, hidden_layer, nheads)
+    ginner = GInNER(word_embedding_dim, tag_to_idx, device, dropout, hidden_layer, nheads)
     print(ginner)
     if regularization:
         optimizer = optim.Adam(ginner.parameters(), lr=lr, weight_decay=weight_decay)
@@ -84,6 +84,8 @@ def train(train_dataset, validation_dataset, device, dropout, hidden_layer, nhea
     
     arEpochs = []
     losses = {'train set':[], 'val set': []}
+    
+    
     for i in range(1,epochs+1):
         arEpochs.append(i)
         sys.stderr.write('--------- Epoch ' + str(i) + ' ---------\n')
@@ -92,24 +94,24 @@ def train(train_dataset, validation_dataset, device, dropout, hidden_layer, nhea
         total_loss = 0
         broken_sentence = 0
         for item in tqdm(data):
-            try:
-                words = item[0]
-                labels = torch.LongTensor(item[2])
-                word_embeddings = item[1]
-                sentence = createFullSentence(words)
-                A, X = create_graph_from_sentence_and_word_vectors(sentence, word_embeddings)
-                output_tensor = ginner(X, A)
-                loss = loss_function(output_tensor, labels).to(device)
+            #try:
+            words = item[0]
+            labels = torch.LongTensor(item[2])
+            word_embeddings = item[1]
+            sentence = createFullSentence(words)
+            A, X = create_graph_from_sentence_and_word_vectors(sentence, word_embeddings)
+            output_tensor = ginner(X, A)
+            loss = loss_function(output_tensor, labels).to(device)
                 
-                optimizer.zero_grad()
-                loss.backward()
-                optimizer.step()
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
                 
-                total_loss += loss.item()
-                total_sentences +=1
-            except:
-                broken_sentence += 1
-                pass
+            total_loss += loss.item()
+            total_sentences +=1
+            #except:
+            #    broken_sentence += 1
+            #    pass
         total_loss = total_loss/total_sentences
         print("broken sentence during training", broken_sentence)
         ginner.eval()

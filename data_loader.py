@@ -9,8 +9,6 @@ import torch
 #print(parser)
 
 parser = spacy.load("id_spacy")
-
-
 classes = ["O", "B-PERSON", "I-PERSON", "B-LOC", "I-LOC", "B-ORG", "I-ORG"]
 _partial_word = '%pw'
 
@@ -92,7 +90,7 @@ def get_data_from_sentences(sentences):
             total_tokens += 1
         all_data.append((words, word_data, class_data, class_text))
     return all_data
-def get_data_from_sentences_fasttext(sentences, word_emb):
+def get_data_from_sentences_fasttext(sentences, word_emb, tag_to_idx):
     all_data = []
     A = np.zeros((len(classes) + 1, len(classes) + 1))
     total_tokens = 0
@@ -109,7 +107,7 @@ def get_data_from_sentences_fasttext(sentences, word_emb):
             words.append(word)
             word_vector = get_vector_fasttext(word, word_emb)
             vector = word_vector
-            entity_num = get_entity_num(entity)
+            entity_num = tag_to_idx[entity]
             word_data.append(vector)
             class_data.append(entity_num)
             class_text.append(entity)

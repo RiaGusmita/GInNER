@@ -15,13 +15,16 @@ from transformers import BertTokenizer, AutoModel
 
 
 DEVICE = torch.device("cpu")
+START_TAG = "<START>"
+STOP_TAG = "<STOP>"
 
 def main(mode, loss_function, hidden_layers, nheads, lr, dropout, regularization, weight_decay, n_epoch, save_every, word_emb_model, word_emb_dim, ner_model): 
     if regularization==True:
         weight_decay==weight_decay
     else:
         weight_decay==0
-        
+    tag_to_idx = {"O": 0, "B-PERSON": 1, "I_PERSON": 2, "B-LOC": 3, "I-LOC": 5, "B-ORG": 6, "I-ORG": 7, START_TAG: 8, STOP_TAG: 9}    
+    
     print('Hyper paramters:')  
     print("Loss function: {}".format(loss_function))
     print("Learning rate: {}",format(lr))
@@ -44,12 +47,12 @@ def main(mode, loss_function, hidden_layers, nheads, lr, dropout, regularization
         print('Data loading ...')
         if mode == "train":
             if word_emb_model=="indobert":
-                train_indobert(train_dataset, valid_dataset, DEVICE, dropout, hidden_layers, nheads, n_epoch, lr, regularization, word_emb_model, model, tokenizer, word_emb_dim)
+                train_indobert(train_dataset, valid_dataset, tag_to_idx, DEVICE, dropout, hidden_layers, nheads, n_epoch, lr, regularization, word_emb_model, model, tokenizer, word_emb_dim)
             else:
-                train(train_dataset, valid_dataset, DEVICE, dropout, hidden_layers, nheads, n_epoch, lr, regularization, word_emb_model, word_emb, word_emb_dim)
+                train(train_dataset, valid_dataset, tag_to_idx, DEVICE, dropout, hidden_layers, nheads, n_epoch, lr, regularization, word_emb_model, word_emb, word_emb_dim)
         if mode == "test":
             #print(test_dataset)
-            model_testing(test_dataset, DEVICE, dropout, hidden_layers, nheads, word_emb_model, word_emb, ner_model, word_emb_dim)
+            model_testing(test_dataset, tag_to_idx, DEVICE, dropout, hidden_layers, nheads, word_emb_model, word_emb, ner_model, word_emb_dim)
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Indonesian NER')
     parser.add_argument("--mode", type=str, default="all", help="use which mode type: train/test/all")
