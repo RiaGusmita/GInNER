@@ -132,6 +132,7 @@ class GInNER(nn.Module):
 
       # forward_var at step i holds the viterbi variables for step i-1
       forward_var = init_vvars
+      print("len feat", len(feats))
       for feat in feats:
           bptrs_t = []  # holds the backpointers for this step
           viterbivars_t = []  # holds the viterbi variables for this step
@@ -158,6 +159,7 @@ class GInNER(nn.Module):
 
       # Follow the back pointers to decode the best path.
       best_path = [best_tag_id]
+      print("backpointers", len(backpointers))
       for bptrs_t in reversed(backpointers):
           best_tag_id = bptrs_t[best_tag_id]
           best_path.append(best_tag_id)
