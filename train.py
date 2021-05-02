@@ -102,7 +102,7 @@ def train(train_dataset, validation_dataset, tag_to_idx, device, dropout, hidden
             A, X = create_graph_from_sentence_and_word_vectors(sentence, word_embeddings)
             output_tensor = ginner(X, A)
             loss = loss_function(output_tensor, labels).to(device)
-                
+            #loss = model.neg_log_likelihood(sentence_in, targets)    
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()

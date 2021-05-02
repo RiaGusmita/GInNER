@@ -97,7 +97,7 @@ class GInNER(nn.Module):
       self.device = device
       self.tag_to_idx = tag_to_idx
       self.tagset_size = len(tag_to_idx)
-      self.gat = GAT(nfeat=self.input_size, nhid=self.hidden_layer, nclass=len(self.tagset_size), dropout=self.dropout, nheads=self.nheads, alpha=0.2)
+      self.gat = GAT(nfeat=self.input_size, nhid=self.hidden_layer, nclass=self.tagset_size, dropout=self.dropout, nheads=self.nheads, alpha=0.2)
       self.device = device
       
       # Matrix of transition parameters.  Entry i,j is the score of
