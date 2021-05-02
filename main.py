@@ -64,7 +64,7 @@ if __name__ == "__main__":
     parser.add_argument("--n_epoch", type=int, default=50, help="train model in total n epochs")
     parser.add_argument("--word_emb_model", type=str, default="spacy", help="spacy/fasttext")
     parser.add_argument("--word_emb_dim", type=int, default=96, help="word embedding dimension")
-    parser.add_argument("--ner_model", type=int, default="final_model", help="word embedding dimension")
+    parser.add_argument("--ner_model", type=str, default="final_model", help="word embedding dimension")
     
     
     args = parser.parse_args()
