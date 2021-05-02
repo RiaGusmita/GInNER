@@ -162,6 +162,7 @@ class GInNER(nn.Module):
       print("backpointers", len(backpointers))
       for bptrs_t in reversed(backpointers):
           best_tag_id = bptrs_t[best_tag_id]
+          print("best_tag_id", best_tag_id)
           best_path.append(best_tag_id)
       # Pop off the start tag (we dont want to return that to the caller)
       start = best_path.pop()
