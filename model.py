@@ -163,12 +163,13 @@ class GInNER(nn.Module):
       print("backpointers", len(backpointers))
       for bptrs_t in reversed(backpointers):
           best_tag_id = bptrs_t[best_tag_id]
-          print("best_tag_id", best_tag_id)
+          #print("best_tag_id", best_tag_id)
           best_path.append(best_tag_id)
       # Pop off the start tag (we dont want to return that to the caller)
       start = best_path.pop()
       assert start == self.tag_to_idx[START_TAG]  # Sanity check
       best_path.reverse()
+      print("best path", best_path, len(best_path))
       return path_score, best_path
   
   def _forward_alg(self, feats):
