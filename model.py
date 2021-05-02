@@ -128,7 +128,7 @@ class GInNER(nn.Module):
 
       # Initialize the viterbi variables in log space
       init_vvars = torch.full((1, self.tagset_size), -10000.)
-      init_vvars[0][self.tag_to_ix[START_TAG]] = 0
+      init_vvars[0][self.tag_to_idx[START_TAG]] = 0
 
       # forward_var at step i holds the viterbi variables for step i-1
       forward_var = init_vvars
