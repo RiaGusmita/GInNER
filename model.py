@@ -111,20 +111,14 @@ class GInNER(nn.Module):
       self.transitions.data[:, tag_to_idx[STOP_TAG]] = -10000
         
   def forward(self, input_tensor, adj):
-      embedded = input_tensor
-      adj = adj + adj.T.multiply(adj.T > adj) - adj.multiply(adj.T > adj)
-      adj = normalize_adj(adj + sp.eye(adj.shape[0]))
-      adj = torch.FloatTensor(np.array(adj.todense()))
-      features = normalize_features(embedded.detach().numpy())
-      features = torch.FloatTensor(np.array(features))
     
-      logits = self.gat(features, adj)
+      logits = self._get_gat_features(input_tensor, adj)
       # Find the best path, given the features.
       score, tag_seq = self._viterbi_decode(logits)
       return score, tag_seq
     
-  def neg_log_likelihood(self, sentence, tags):
-      feats = self._get_lstm_features(sentence)
+  def neg_log_likelihood(self, input_tensor, adj, tags):
+      feats = self._get_gat_features(input_tensor, adj)
       forward_score = self._forward_alg(feats)
       gold_score = self._score_sentence(feats, tags)
       return forward_score - gold_score
@@ -172,6 +166,7 @@ class GInNER(nn.Module):
       assert start == self.tag_to_ix[START_TAG]  # Sanity check
       best_path.reverse()
       return path_score, best_path
+  
   def _forward_alg(self, feats):
         # Do the forward algorithm to compute the partition function
         init_alphas = torch.full((1, self.tagset_size), -10000.)
@@ -202,3 +197,15 @@ class GInNER(nn.Module):
         terminal_var = forward_var + self.transitions[self.tag_to_ix[STOP_TAG]]
         alpha = log_sum_exp(terminal_var)
         return alpha
+    
+  def _get_gat_features(self, input_tensor, adj):
+      embedded = input_tensor
+      adj = adj + adj.T.multiply(adj.T > adj) - adj.multiply(adj.T > adj)
+      adj = normalize_adj(adj + sp.eye(adj.shape[0]))
+      adj = torch.FloatTensor(np.array(adj.todense()))
+      features = normalize_features(embedded.detach().numpy())
+      features = torch.FloatTensor(np.array(features))
+    
+      logits = self.gat(features, adj)
+      
+      return logits
