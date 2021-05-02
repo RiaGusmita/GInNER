@@ -12,7 +12,7 @@ import random
 
 _logger = logging.getLogger(__name__)
 
-def model_testing(test_dataset, device, dropout, hidden_layer, nheads, word_emb_model, word_emb, n_epoch, ner_model, word_embedding_dim=96):
+def model_testing(test_dataset, device, dropout, hidden_layer, nheads, word_emb_model, word_emb, ner_model, word_embedding_dim=96):
     #print(test_dataset)
     
     sentences = getSentences(test_dataset)
