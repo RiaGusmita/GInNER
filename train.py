@@ -100,7 +100,7 @@ def train(train_dataset, validation_dataset, tag_to_idx, device, dropout, hidden
                 word_embeddings = item[1]
                 sentence = createFullSentence(words)
                 A, X = create_graph_from_sentence_and_word_vectors(sentence, word_embeddings)
-                output_tensor = ginner(X, A)
+                logit_scores, logit_tags = ginner(X, A)
                 #loss = loss_function(output_tensor, labels).to(device)
                 loss = ginner.neg_log_likelihood(X, A, labels)    
                 optimizer.zero_grad()
@@ -130,12 +130,12 @@ def train(train_dataset, validation_dataset, tag_to_idx, device, dropout, hidden
                 word_embeddings = item[1]
                 sentence = createFullSentence(words)
                 A, X = create_graph_from_sentence_and_word_vectors(sentence, word_embeddings)
-                output_tensor = ginner(X, A)
+                logits_scores, logits_tags = ginner(X, A)
                 val_loss = ginner.neg_log_likelihood(X, A, labels) 
-                    
-                logits_scores, logits_tags = torch.max(output_tensor, 1, keepdim=True)
-                logits_label = logits_tags.detach().cpu().numpy().tolist()
-                y_pred = [predict[0] for predict in logits_label]
+                print("logits scores", logits_scores)
+                print("logits tags", logits_tags)
+                #logits_label = logits_tags.detach().cpu().numpy().tolist()
+                y_pred = [predict[0] for predict in logits_tags]
                 y_true = labels.detach().cpu().numpy().tolist()
                 f1_score_micro = f1_score(y_true, y_pred, average='micro')
                 list_f1_score_micro.append(f1_score_micro)
