@@ -159,6 +159,7 @@ class GInNER(nn.Module):
 
       # Follow the back pointers to decode the best path.
       best_path = [best_tag_id]
+      print("best path", best_path)
       print("backpointers", len(backpointers))
       for bptrs_t in reversed(backpointers):
           best_tag_id = bptrs_t[best_tag_id]
