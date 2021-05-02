@@ -39,10 +39,10 @@ def _get_entity_tuples_from_sentence(sentence, word_emb_model, word_embedding_di
     
     if word_emb_model=="fasttext":
         words, vectors = get_words_embeddings_from_sentence_fasttext(sentence, word_emb)
-    elif word_emb_model=="fasttext":
+    elif word_emb_model=="indobert":
         tokenizer = BertTokenizer.from_pretrained("indobenchmark/indobert-base-p1")
         model = AutoModel.from_pretrained("indobenchmark/indobert-base-p1")
-        words, vectors = get_words_embeddings_from_sentence_fasttext(sentence, tokenizer, model)
+        words, vectors = get_words_embeddings_from_sentence_indobert(sentence, tokenizer, model)
         
     else:
         words, vectors, idx = get_words_embeddings_from_sentence(sentence)
