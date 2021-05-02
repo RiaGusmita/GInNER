@@ -174,11 +174,7 @@ def train(train_dataset, validation_dataset, tag_to_idx, device, dropout, hidden
         showPlot(arEpochs, losses, "training_val_loss")
         
 def accuracy(output, labels):
-    print(output)
-    preds = output.max(1).type_as(labels)
-    correct = preds.eq(labels).double()
-    correct = correct.sum()
-    correct = correct.detach().cpu().numpy()
+    correct = (output == labels).float().sum()
     acc = correct / len(labels)
     return acc 
 
