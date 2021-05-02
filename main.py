@@ -23,7 +23,7 @@ def main(mode, loss_function, hidden_layers, nheads, lr, dropout, regularization
         weight_decay==weight_decay
     else:
         weight_decay==0
-    tag_to_idx = {"O": 0, "B-PERSON": 1, "I_PERSON": 2, "B-LOC": 3, "I-LOC": 5, "B-ORG": 6, "I-ORG": 7, START_TAG: 8, STOP_TAG: 9}    
+    tag_to_idx = {"O": 0, "B-PERSON": 1, "I-PERSON": 2, "B-LOC": 3, "I-LOC": 5, "B-ORG": 6, "I-ORG": 7, START_TAG: 8, STOP_TAG: 9}    
     
     print('Hyper paramters:')  
     print("Loss function: {}".format(loss_function))
