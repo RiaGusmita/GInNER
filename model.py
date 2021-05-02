@@ -152,7 +152,7 @@ class GInNER(nn.Module):
           backpointers.append(bptrs_t)
 
       # Transition to STOP_TAG
-      terminal_var = forward_var + self.transitions[self.tag_to_ix[STOP_TAG]]
+      terminal_var = forward_var + self.transitions[self.tag_to_idx[STOP_TAG]]
       best_tag_id = argmax(terminal_var)
       path_score = terminal_var[0][best_tag_id]
 
@@ -163,7 +163,7 @@ class GInNER(nn.Module):
           best_path.append(best_tag_id)
       # Pop off the start tag (we dont want to return that to the caller)
       start = best_path.pop()
-      assert start == self.tag_to_ix[START_TAG]  # Sanity check
+      assert start == self.tag_to_idx[START_TAG]  # Sanity check
       best_path.reverse()
       return path_score, best_path
   
@@ -171,7 +171,7 @@ class GInNER(nn.Module):
         # Do the forward algorithm to compute the partition function
         init_alphas = torch.full((1, self.tagset_size), -10000.)
         # START_TAG has all of the score.
-        init_alphas[0][self.tag_to_ix[START_TAG]] = 0.
+        init_alphas[0][self.tag_to_idx[START_TAG]] = 0.
 
         # Wrap in a variable so that we will get automatic backprop
         forward_var = init_alphas
@@ -194,7 +194,7 @@ class GInNER(nn.Module):
                 # scores.
                 alphas_t.append(log_sum_exp(next_tag_var).view(1))
             forward_var = torch.cat(alphas_t).view(1, -1)
-        terminal_var = forward_var + self.transitions[self.tag_to_ix[STOP_TAG]]
+        terminal_var = forward_var + self.transitions[self.tag_to_idx[STOP_TAG]]
         alpha = log_sum_exp(terminal_var)
         return alpha
     
