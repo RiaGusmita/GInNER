@@ -132,7 +132,7 @@ class GInNER(nn.Module):
 
       # forward_var at step i holds the viterbi variables for step i-1
       forward_var = init_vvars
-      print("len feat", len(feats))
+      #print("len feat", len(feats))
       for feat in feats:
           bptrs_t = []  # holds the backpointers for this step
           viterbivars_t = []  # holds the viterbi variables for this step
@@ -159,8 +159,8 @@ class GInNER(nn.Module):
 
       # Follow the back pointers to decode the best path.
       best_path = [best_tag_id]
-      print("best path", best_path)
-      print("backpointers", len(backpointers))
+      #print("best path", best_path)
+      #print("backpointers", len(backpointers))
       for bptrs_t in reversed(backpointers):
           best_tag_id = bptrs_t[best_tag_id]
           #print("best_tag_id", best_tag_id)
@@ -169,7 +169,7 @@ class GInNER(nn.Module):
       start = best_path.pop()
       assert start == self.tag_to_idx[START_TAG]  # Sanity check
       best_path.reverse()
-      print("best path", best_path, len(best_path))
+      #print("best path", best_path, len(best_path))
       return path_score, best_path
   
   def _forward_alg(self, feats):
