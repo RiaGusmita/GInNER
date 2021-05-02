@@ -173,8 +173,11 @@ def train(train_dataset, validation_dataset, tag_to_idx, device, dropout, hidden
         losses['val set'].append(total_val_loss)
         showPlot(arEpochs, losses, "training_val_loss")
         
-def accuracy(output, labels):
-    correct = (output == labels).float().sum()
+def accuracy(outputs, labels):
+    correct = 0
+    for i, output in enumerate(outputs):
+        if output == labels[i]:
+            correct += 1
     acc = correct / len(labels)
     return acc 
 
