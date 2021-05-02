@@ -133,7 +133,7 @@ def train(train_dataset, validation_dataset, tag_to_idx, device, dropout, hidden
                 logits_scores, logits_tags = ginner(X, A)
                 val_loss = ginner.neg_log_likelihood(X, A, labels) 
                 y_pred = [predict for predict in logits_tags]
-                y_true = labels.detach().cpu().numpy().tolist()
+                y_true = labels.detach().cpu().numpy()
                 f1_score_micro = f1_score(y_true, y_pred, average='micro')
                 list_f1_score_micro.append(f1_score_micro)
                     
@@ -175,6 +175,7 @@ def train(train_dataset, validation_dataset, tag_to_idx, device, dropout, hidden
         
 def accuracy(outputs, labels):
     correct = 0
+    labels = labels.detach().cpu().numpy()
     for i, output in enumerate(outputs):
         if output == labels[i]:
             correct += 1
