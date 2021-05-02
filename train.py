@@ -124,29 +124,29 @@ def train(train_dataset, validation_dataset, tag_to_idx, device, dropout, hidden
         broken_sentence = 0
         with torch.no_grad():
             for item in tqdm(val_data):
-                try:
-                    words = item[0]
-                    labels = torch.LongTensor(item[2])
-                    word_embeddings = item[1]
-                    sentence = createFullSentence(words)
-                    A, X = create_graph_from_sentence_and_word_vectors(sentence, word_embeddings)
-                    output_tensor = ginner(X, A)
-                    val_loss = ginner.neg_log_likelihood(X, A, labels) 
+                #try:
+                words = item[0]
+                labels = torch.LongTensor(item[2])
+                word_embeddings = item[1]
+                sentence = createFullSentence(words)
+                A, X = create_graph_from_sentence_and_word_vectors(sentence, word_embeddings)
+                output_tensor = ginner(X, A)
+                val_loss = ginner.neg_log_likelihood(X, A, labels) 
                     
-                    logits_scores, logits_tags = torch.max(output_tensor, 1, keepdim=True)
-                    logits_label = logits_tags.detach().cpu().numpy().tolist()
-                    y_pred = [predict[0] for predict in logits_label]
-                    y_true = labels.detach().cpu().numpy().tolist()
-                    f1_score_micro = f1_score(y_true, y_pred, average='micro')
-                    list_f1_score_micro.append(f1_score_micro)
+                logits_scores, logits_tags = torch.max(output_tensor, 1, keepdim=True)
+                logits_label = logits_tags.detach().cpu().numpy().tolist()
+                y_pred = [predict[0] for predict in logits_label]
+                y_true = labels.detach().cpu().numpy().tolist()
+                f1_score_micro = f1_score(y_true, y_pred, average='micro')
+                list_f1_score_micro.append(f1_score_micro)
                     
-                    total_val_loss += val_loss.item()
-                    acc_val = accuracy(output_tensor, labels)
-                    total_val_acc += acc_val
-                    total_val_sentences +=1
-                except:
-                    broken_sentence +=1
-                    pass
+                total_val_loss += val_loss.item()
+                acc_val = accuracy(output_tensor, labels)
+                total_val_acc += acc_val
+                total_val_sentences +=1
+                #except:
+                #    broken_sentence +=1
+                #    pass
         total_val_loss = total_val_loss/total_val_sentences
         total_val_acc = total_val_acc/total_val_sentences
         avg_f1_scores_micro = sum(list_f1_score_micro)/len(list_f1_score_micro)
