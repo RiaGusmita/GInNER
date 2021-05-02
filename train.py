@@ -132,9 +132,6 @@ def train(train_dataset, validation_dataset, tag_to_idx, device, dropout, hidden
                 A, X = create_graph_from_sentence_and_word_vectors(sentence, word_embeddings)
                 logits_scores, logits_tags = ginner(X, A)
                 val_loss = ginner.neg_log_likelihood(X, A, labels) 
-                #print("logits scores", logits_scores)
-                #print("logits tags", logits_tags)
-                #logits_label = logits_tags.detach().cpu().numpy().tolist()
                 y_pred = [predict for predict in logits_tags]
                 y_true = labels.detach().cpu().numpy().tolist()
                 f1_score_micro = f1_score(y_true, y_pred, average='micro')
@@ -177,7 +174,8 @@ def train(train_dataset, validation_dataset, tag_to_idx, device, dropout, hidden
         showPlot(arEpochs, losses, "training_val_loss")
         
 def accuracy(output, labels):
-    preds = output
+    print(output)
+    preds = output.max(1).type_as(labels)
     correct = preds.eq(labels).double()
     correct = correct.sum()
     correct = correct.detach().cpu().numpy()
