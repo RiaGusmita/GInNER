@@ -216,7 +216,7 @@ def showPlot(epochs, losses, fig_name):
     plt.savefig(fig_name+'.png')
     plt.close('all')
 
-def train_indobert(train_dataset, validation_dataset, device, dropout, hidden_layer, nheads, epochs, lr, regularization, word_emb_model, model, tokenizer, word_embedding_dim,
+def train_indobert(train_dataset, validation_dataset, tag_to_idx, device, dropout, hidden_layer, nheads, epochs, lr, regularization, word_emb_model, model, tokenizer, word_embedding_dim,
           saving_dir="models", weight_decay=1e-5):
     
     if not path.exists(saving_dir):
@@ -224,8 +224,8 @@ def train_indobert(train_dataset, validation_dataset, device, dropout, hidden_la
     
     sentences = getSentences(train_dataset)
     val_sentences = getSentences(validation_dataset)
-    data = get_data_from_sentences_indobert(sentences, tokenizer, model)
-    val_data = get_data_from_sentences_indobert(val_sentences, tokenizer, model)
+    data = get_data_from_sentences_indobert(sentences, tokenizer, model, tag_to_idx)
+    val_data = get_data_from_sentences_indobert(val_sentences, tokenizer, model, tag_to_idx)
     
     loss_function = torch.nn.CrossEntropyLoss()
     
