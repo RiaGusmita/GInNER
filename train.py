@@ -100,7 +100,9 @@ def train(train_dataset, validation_dataset, tag_to_idx, device, dropout, hidden
                 word_embeddings = item[1]
                 sentence = createFullSentence(words)
                 A, X = create_graph_from_sentence_and_word_vectors(sentence, word_embeddings)
-                logit_scores, logit_tags = ginner(X, A)
+                #logit_scores, logit_tags = ginner(X, A)
+                output_tensor = ginner(X, A)
+                loss = loss_function(output_tensor, labels).to(device)
                 #print("tags", len(logit_tags))
                 #print("labels", len(labels.detach().cpu().numpy()))
                 #loss = loss_function(output_tensor, labels).to(device)
@@ -132,20 +134,19 @@ def train(train_dataset, validation_dataset, tag_to_idx, device, dropout, hidden
                     word_embeddings = item[1]
                     sentence = createFullSentence(words)
                     A, X = create_graph_from_sentence_and_word_vectors(sentence, word_embeddings)
-                    logits_scores, logits_tags = ginner(X, A)
-                    #print("tags", len(logit_tags))
-                    #print("labels", len(labels.detach().cpu().numpy()))
-                    
-                    #print("logits scores", logit_scores)
-                    #print("len logits scores", logit_scores.shape)
+                    #logits_scores, logits_tags = ginner(X, A)
+                    output_tensor = ginner(X, A)
+                    #loss = loss_function(output_tensor, labels).to(device)
                     val_loss = ginner.neg_log_likelihood(X, A, labels) 
+                    logits_scores, logits_tags = torch.max(output_tensor, 1, keepdim=True)
+                    logits_tags = logits_tags.detach().cpu().numpy().tolist()
                     y_pred = [predict for predict in logits_tags]
                     y_true = labels.detach().cpu().numpy()
                     f1_score_micro = f1_score(y_true, y_pred, average='micro')
                     list_f1_score_micro.append(f1_score_micro)
                             
                     total_val_loss += val_loss.item()
-                    acc_val = accuracy(logit_tags, labels)
+                    acc_val = accuracy(logits_tags, labels)
                     total_val_acc += acc_val
                     total_val_sentences +=1
                 except:
@@ -180,7 +181,7 @@ def train(train_dataset, validation_dataset, tag_to_idx, device, dropout, hidden
         losses['val set'].append(total_val_loss)
         showPlot(arEpochs, losses, "training_val_loss")
         
-def accuracy(outputs, labels):
+def accuracy_alt(outputs, labels):
     correct = 0
     labels = labels.detach().cpu().numpy()
     #print("outputs", outputs)
@@ -193,6 +194,12 @@ def accuracy(outputs, labels):
     acc = correct / len(labels)
     return acc 
 
+def accuracy(output, labels):
+    preds = output.max(1)[1].type_as(labels)
+    correct = preds.eq(labels).double()
+    correct = correct.sum()
+    return correct / len(labels
+                         )
 '''Used to plot the progress of training. Plots the loss value vs. time'''
 def showPlot(epochs, losses, fig_name):
     colors = ('red','blue')
