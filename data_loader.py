@@ -64,7 +64,7 @@ def getSentences(data):
             words_and_label = []
     return sentences
 
-def get_data_from_sentences(sentences):
+def get_data_from_sentences(sentences, tag_to_idx):
     all_data = []
     A = np.zeros((len(classes) + 1, len(classes) + 1))
     total_tokens = 0
@@ -81,7 +81,7 @@ def get_data_from_sentences(sentences):
             words.append(word)
             word_vector = get_word_vector(word)
             vector = word_vector
-            entity_num = get_entity_num(entity)
+            entity_num = tag_to_idx[entity]
             word_data.append(vector)
             class_data.append(entity_num)
             class_text.append(entity)

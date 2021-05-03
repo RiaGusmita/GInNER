@@ -46,10 +46,8 @@ def main(mode, loss_function, hidden_layers, nheads, lr, dropout, regularization
         train_dataset, valid_dataset, test_dataset = getData()
         print('Data loading ...')
         if mode == "train":
-            if word_emb_model=="indobert":
-                train_indobert(train_dataset, valid_dataset, tag_to_idx, DEVICE, dropout, hidden_layers, nheads, n_epoch, lr, regularization, word_emb_model, model, tokenizer, word_emb_dim)
-            else:
-                train(train_dataset, valid_dataset, tag_to_idx, DEVICE, dropout, hidden_layers, nheads, n_epoch, lr, regularization, word_emb_model, word_emb, word_emb_dim)
+            #train_indobert(train_dataset, valid_dataset, tag_to_idx, DEVICE, dropout, hidden_layers, nheads, n_epoch, lr, regularization, word_emb_model, model, tokenizer, word_emb_dim)
+            train(train_dataset, valid_dataset, tag_to_idx, DEVICE, dropout, hidden_layers, nheads, n_epoch, lr, regularization, word_emb_model, word_emb, word_emb_dim)
         if mode == "test":
             #print(test_dataset)
             model_testing(test_dataset, tag_to_idx, DEVICE, dropout, hidden_layers, nheads, word_emb_model, word_emb, ner_model, word_emb_dim)

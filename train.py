@@ -66,11 +66,15 @@ def train(train_dataset, validation_dataset, tag_to_idx, device, dropout, hidden
     if word_emb_model =="fasttext":
         data = get_data_from_sentences_fasttext(sentences, word_emb, tag_to_idx)
         val_data = get_data_from_sentences_fasttext(val_sentences, word_emb, tag_to_idx)
+    elif word_emb_model =="indobert":
+        tokenizer, model = word_emb
+        data = get_data_from_sentences_indobert(sentences, tokenizer, model, tag_to_idx)
+        val_data = get_data_from_sentences_indobert(val_sentences, tokenizer, model, tag_to_idx)
     else:
-        data = get_data_from_sentences(sentences)
-        val_data = get_data_from_sentences(val_sentences)
+        data = get_data_from_sentences(sentences, tag_to_idx)
+        val_data = get_data_from_sentences(val_sentences, tag_to_idx)
     
-    loss_function = torch.nn.CrossEntropyLoss()
+    #loss_function = torch.nn.CrossEntropyLoss()
     
     print("total data", len(data))
     #buckets = bin_data_into_buckets(data, bucket_size)
@@ -312,6 +316,7 @@ def train_indobert(train_dataset, validation_dataset, tag_to_idx, device, dropou
                     "optimizer_state_dict": optimizer.state_dict(),
                     "loss": total_loss
                     }, path.join(saving_dir, "best_model.pt".format(i)))
+            evaluate_randomly(val_data, ginner, tag_to_idx)
     
         torch.save({
                     "epoch": i,
@@ -346,3 +351,24 @@ def word_subword_tokenize(sentence, tokenizer):
         subwords += subword_list
 
     return subwords, subword_to_word_indices
+
+def evaluate_randomly(data, model, tag_to_idx):
+    item = random.choice(data)
+    
+    words = item[0]
+    word_embeddings = item[1]
+    sentence = createFullSentence(words)
+    labels = item[2]
+    A, X = create_graph_from_sentence_and_word_vectors(sentence, word_embeddings)
+    #output_tensor = model(X, A)
+    #output_tensor = output_tensor
+    #logits_scores, logits_tags = torch.max(output_tensor, 1, keepdim=True)
+    logit_scores, logit_tags = model(X, A)
+    #logits_label = logits_tags.detach().cpu().numpy().tolist()
+    y_pred = [predict for predict in logit_tags]
+    key_list = list(tag_to_idx.keys())
+    value_list = list(tag_to_idx.values())
+    for i, word in enumerate(words):
+        tag = value_list.index(y_pred[i])
+        label_tag = value_list.index(labels[i])
+        print("word {} prediction {} True label {}".format(word, key_list[tag], key_list[label_tag]))
