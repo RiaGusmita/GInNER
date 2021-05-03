@@ -114,8 +114,8 @@ class GInNER(nn.Module):
     
       logits = self._get_gat_features(input_tensor, adj)
       # Find the best path, given the features.
-      #score, tag_seq = self._viterbi_decode(logits)
-      return logits #score, tag_seq
+      score, tag_seq = self._viterbi_decode(logits)
+      return score, tag_seq
     
   def neg_log_likelihood(self, input_tensor, adj, tags):
       feats = self._get_gat_features(input_tensor, adj)

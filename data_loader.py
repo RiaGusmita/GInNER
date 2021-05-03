@@ -92,15 +92,12 @@ def get_data_from_sentences(sentences):
     return all_data
 def get_data_from_sentences_fasttext(sentences, word_emb, tag_to_idx):
     all_data = []
-    A = np.zeros((len(classes) + 1, len(classes) + 1))
     total_tokens = 0
     for sentence in tqdm(sentences):
         word_data = []
         class_data = []
         class_text = []
         words = []
-        prior_entity = len(classes)
-        #print('sentence', sentence)
         for word, entity in sentence:
             if word == _partial_word:
                 continue
@@ -111,8 +108,6 @@ def get_data_from_sentences_fasttext(sentences, word_emb, tag_to_idx):
             word_data.append(vector)
             class_data.append(entity_num)
             class_text.append(entity)
-            A[prior_entity, entity_num] += 1
-            prior_entity = entity_num
             total_tokens += 1
         all_data.append((words, word_data, class_data, class_text))
     return all_data
