@@ -12,6 +12,7 @@ import os.path as path
 import matplotlib.pyplot as plt
 from sklearn.metrics import recall_score, precision_score, f1_score
 import numpy as np
+import random
 
 def get_chunks(l, n):
     return [l[i:i + n] for i in range(0, len(l), n)]
