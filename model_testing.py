@@ -48,7 +48,7 @@ def model_testing(test_dataset, tag_to_idx, device, dropout, hidden_layer, nhead
             #logits_scores, logits_tags = torch.max(output_tensor, 1, keepdim=True)
             #logits_label = logits_tags.detach().cpu().numpy().tolist()
             y_pred = [predict for predict in logit_tags]
-            y_true = labels.detach().cpu().numpy().list()
+            y_true = labels.detach().cpu().numpy()
             print("y_pred", y_pred)
             print("y_true", y_true)
             recall_scores.append(recall_score(y_true, y_pred, average='macro'))
