@@ -146,7 +146,9 @@ def train(train_dataset, validation_dataset, tag_to_idx, device, dropout, hidden
                     #logits_scores, logits_tags = torch.max(output_tensor, 1, keepdim=True)
                     #logits_tags = logits_tags.detach().cpu().numpy().tolist()
                     y_pred = [predict for predict in logit_tags]
+                    print("y_pred", y_pred)
                     y_true = labels.detach().cpu().numpy()
+                    print("y_true", y_true)
                     f1_score_micro = f1_score(y_true, y_pred, average='micro')
                     #score = logit_scores.detach().cpu().numpy()
                     list_f1_score_micro.append(f1_score_micro)
