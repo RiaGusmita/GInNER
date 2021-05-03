@@ -145,15 +145,15 @@ def train(train_dataset, validation_dataset, tag_to_idx, device, dropout, hidden
                     val_loss = ginner.neg_log_likelihood(X, A, labels) 
                     #logits_scores, logits_tags = torch.max(output_tensor, 1, keepdim=True)
                     #logits_tags = logits_tags.detach().cpu().numpy().tolist()
-                    #y_pred = [predict for predict in logits_tags]
-                    #y_true = labels.detach().cpu().numpy()
-                    #f1_score_micro = f1_score(y_true, y_pred, average='micro')
-                    score = logit_scores.detach().cpu().numpy()
-                    list_f1_score_micro.append(score)
+                    y_pred = [predict for predict in logit_tags]
+                    y_true = labels.detach().cpu().numpy()
+                    f1_score_micro = f1_score(y_true, y_pred, average='micro')
+                    #score = logit_scores.detach().cpu().numpy()
+                    list_f1_score_micro.append(f1_score_micro)
                             
                     total_val_loss += val_loss.item()
-                    #acc_val = accuracy(logits_tags, labels)
-                    total_val_acc += score
+                    #acc_val = accuracy_alt(logits_tags, labels)
+                    total_val_acc += f1_score_micro
                     total_val_sentences +=1
                 except:
                     broken_sentence +=1
