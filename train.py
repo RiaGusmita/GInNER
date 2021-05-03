@@ -167,6 +167,7 @@ def train(train_dataset, validation_dataset, tag_to_idx, device, dropout, hidden
                     "optimizer_state_dict": optimizer.state_dict(),
                     "loss": total_loss
                     }, path.join(saving_dir, "best_model.pt".format(i)))
+            evaluate_randomly(val_data, ginner, tag_to_idx)
     
         torch.save({
                     "epoch": i,
@@ -316,7 +317,7 @@ def train_indobert(train_dataset, validation_dataset, tag_to_idx, device, dropou
                     "optimizer_state_dict": optimizer.state_dict(),
                     "loss": total_loss
                     }, path.join(saving_dir, "best_model.pt".format(i)))
-            evaluate_randomly(val_data, ginner, tag_to_idx)
+            
     
         torch.save({
                     "epoch": i,
