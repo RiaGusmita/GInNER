@@ -48,7 +48,7 @@ def model_testing(test_dataset, tag_to_idx, device, dropout, hidden_layer, nhead
             #logits_scores, logits_tags = torch.max(output_tensor, 1, keepdim=True)
             #logits_label = logits_tags.detach().cpu().numpy().tolist()
             y_pred = [predict for predict in logit_tags]
-            y_true = labels.detach().cpu().numpy()
+            y_true = labels.detach().cpu().numpy().list()
             print("y_pred", y_pred)
             print("y_true", y_true)
             recall_scores.append(recall_score(y_true, y_pred, average='macro'))
@@ -65,9 +65,9 @@ def model_testing(test_dataset, tag_to_idx, device, dropout, hidden_layer, nhead
     print("total sentences", len(sentences))
     print("Broken sentences", broken_sentences)
     print("precision {}, recall {}, f1 {}".format(avg_precision, avg_recall, avg_fscores))
-    evaluate_randomly(data, ginner)
+    evaluate_randomly(data, ginner, tag_to_idx)
     
-def evaluate_randomly(data, model):
+def evaluate_randomly(data, model, tag_to_idx):
     item = random.choice(data)
     
     words = item[0]
@@ -75,13 +75,14 @@ def evaluate_randomly(data, model):
     sentence = createFullSentence(words)
     labels = item[2]
     A, X = create_graph_from_sentence_and_word_vectors(sentence, word_embeddings)
-    output_tensor = model(X, A)
-    output_tensor = output_tensor
-    logits_scores, logits_tags = torch.max(output_tensor, 1, keepdim=True)
-    logits_label = logits_tags.detach().cpu().numpy().tolist()
-    y_pred = [predict[0] for predict in logits_label]
+    #output_tensor = model(X, A)
+    #output_tensor = output_tensor
+    #logits_scores, logits_tags = torch.max(output_tensor, 1, keepdim=True)
+    logit_scores, logit_tags = model(X, A)
+    #logits_label = logits_tags.detach().cpu().numpy().tolist()
+    y_pred = [predict for predict in logit_tags]
     for i, word in enumerate(words):
-        print("word {} prediction {} True label {}".format(word, get_class_name(y_pred[i]), get_class_name(labels[i])))
+        print("word {} prediction {} True label {}".format(word, tag_to_idx[y_pred[i]], tag_to_idx[labels[i]]))
 
 def test_ner(sentence):
     
