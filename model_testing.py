@@ -12,7 +12,7 @@ import random
 
 _logger = logging.getLogger(__name__)
 
-def model_testing(test_dataset, device, dropout, hidden_layer, nheads, word_emb_model, word_emb, ner_model, word_embedding_dim=96):
+def model_testing(test_dataset, tag_to_idx, device, dropout, hidden_layer, nheads, word_emb_model, word_emb, ner_model, word_embedding_dim=96):
     #print(test_dataset)
     
     sentences = getSentences(test_dataset)
@@ -25,7 +25,7 @@ def model_testing(test_dataset, device, dropout, hidden_layer, nheads, word_emb_
         data = get_data_from_sentences_indobert(sentences, tokenizer, model)
     else:
         data = get_data_from_sentences(sentences)
-    ginner = GInNER(word_embedding_dim, device, dropout, hidden_layer, nheads)
+    ginner = GInNER(word_embedding_dim, tag_to_idx, device, dropout, hidden_layer, nheads)
     checkpoint = torch.load(path.join("models", ner_model))
     ginner.load_state_dict(checkpoint["model_state_dict"])
     print(ginner)
@@ -42,12 +42,15 @@ def model_testing(test_dataset, device, dropout, hidden_layer, nheads, word_emb_
         sentence = createFullSentence(words)
         try:           
             A, X = create_graph_from_sentence_and_word_vectors(sentence, word_embeddings)
-            output_tensor = ginner(X, A)
-            output_tensor = output_tensor
-            logits_scores, logits_tags = torch.max(output_tensor, 1, keepdim=True)
-            logits_label = logits_tags.detach().cpu().numpy().tolist()
-            y_pred = [predict[0] for predict in logits_label]
-            y_true = labels.detach().cpu().numpy().tolist()
+            #output_tensor = ginner(X, A)
+            #output_tensor = output_tensor
+            logit_scores, logit_tags = ginner(X, A)
+            #logits_scores, logits_tags = torch.max(output_tensor, 1, keepdim=True)
+            #logits_label = logits_tags.detach().cpu().numpy().tolist()
+            y_pred = [predict for predict in logit_tags]
+            y_true = labels.detach().cpu().numpy()
+            print("y_pred", y_pred)
+            print("y_true", y_true)
             recall_scores.append(recall_score(y_true, y_pred, average='macro'))
             precision_scores.append(precision_score(y_true, y_pred, average='macro'))
             f1_scores.append(f1_score(y_true, y_pred, average='macro'))
