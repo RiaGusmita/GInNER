@@ -19,12 +19,12 @@ def model_testing(test_dataset, tag_to_idx, device, dropout, hidden_layer, nhead
     #print("sentences", sentences)
     #print('len sentences', len(sentences))
     if word_emb_model =="fasttext":
-        data = get_data_from_sentences_fasttext(sentences, word_emb)
+        data = get_data_from_sentences_fasttext(sentences, word_emb, tag_to_idx)
     elif word_emb_model =="indobert":
         tokenizer, model = word_emb
-        data = get_data_from_sentences_indobert(sentences, tokenizer, model)
+        data = get_data_from_sentences_indobert(sentences, tokenizer, model, tag_to_idx)
     else:
-        data = get_data_from_sentences(sentences)
+        data = get_data_from_sentences(sentences, tag_to_idx)
     ginner = GInNER(word_embedding_dim, tag_to_idx, device, dropout, hidden_layer, nheads)
     checkpoint = torch.load(path.join("models", ner_model))
     ginner.load_state_dict(checkpoint["model_state_dict"])
