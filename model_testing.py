@@ -81,8 +81,12 @@ def evaluate_randomly(data, model, tag_to_idx):
     logit_scores, logit_tags = model(X, A)
     #logits_label = logits_tags.detach().cpu().numpy().tolist()
     y_pred = [predict for predict in logit_tags]
+    key_list = list(tag_to_idx.keys())
+    value_list = list(tag_to_idx.values())
     for i, word in enumerate(words):
-        print("word {} prediction {} True label {}".format(word, tag_to_idx[y_pred[i]], tag_to_idx[labels[i]]))
+        tag = value_list.index(y_pred[i])
+        label_tag = value_list.index(labels[i])
+        print("word {} prediction {} True label {}".format(word, key_list[tag], key_list[label_tag]))
 
 def test_ner(sentence):
     
