@@ -231,7 +231,7 @@ def train_indobert(train_dataset, validation_dataset, tag_to_idx, device, dropou
     
     print("total data", len(data))
     word_embedding_dim = 768
-    ginner = GInNER(word_embedding_dim, device, dropout, hidden_layer, nheads)
+    ginner = GInNER(word_embedding_dim, tag_to_idx, device, dropout, hidden_layer, nheads)
     print(ginner)
     if regularization:
         optimizer = optim.Adam(ginner.parameters(), lr=lr, weight_decay=weight_decay)
