@@ -146,7 +146,6 @@ def train(train_dataset, validation_dataset, tag_to_idx, device, dropout, hidden
                     #logits_scores, logits_tags = torch.max(output_tensor, 1, keepdim=True)
                     #logits_tags = logits_tags.detach().cpu().numpy().tolist()
                     y_pred = output_tensor.max(1)[1].type_as(labels)
-                    labels = labels.detach().cpu().numpy()
                     print("y_pred", y_pred, len(y_pred))
                     y_true = labels.detach().cpu().numpy()
                     print("y_true", y_true, len(y_true))
