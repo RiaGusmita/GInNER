@@ -34,6 +34,7 @@ def model_testing(test_dataset, tag_to_idx, device, dropout, hidden_layer, nhead
     recall_scores = []
     precision_scores = []
     f1_scores = []
+    f1_scores_micro = []
     broken_sentences=0
     for item in tqdm(data):
         words = item[0]
@@ -54,6 +55,8 @@ def model_testing(test_dataset, tag_to_idx, device, dropout, hidden_layer, nhead
             recall_scores.append(recall_score(y_true, y_pred, average='macro'))
             precision_scores.append(precision_score(y_true, y_pred, average='macro'))
             f1_scores.append(f1_score(y_true, y_pred, average='macro'))
+            f1_score_micro = f1_score(y_true, y_pred, average='micro')
+            f1_scores_micro.append(f1_score_micro)
         except:
             _logger.warning('Cannot process the following sentence: ' + sentence)
             broken_sentences += 1
@@ -62,9 +65,10 @@ def model_testing(test_dataset, tag_to_idx, device, dropout, hidden_layer, nhead
     avg_recall = sum(recall_scores)/len(recall_scores)
     avg_precision = sum(precision_scores)/len(precision_scores)
     avg_fscores = sum(f1_scores)/len(f1_scores)
+    avg_fscores_micro = sum(f1_scores_micro)/len(f1_scores_micro)
     print("total sentences", len(sentences))
     print("Broken sentences", broken_sentences)
-    print("precision {}, recall {}, f1 {}".format(avg_precision, avg_recall, avg_fscores))
+    print("precision {}, recall {}, f1 {}, f1 micro {}".format(avg_precision, avg_recall, avg_fscores, avg_fscores_micro))
     evaluate_randomly(data, ginner, tag_to_idx)
     
 def evaluate_randomly(data, model, tag_to_idx):
