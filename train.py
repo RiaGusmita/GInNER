@@ -133,36 +133,36 @@ def train(train_dataset, validation_dataset, tag_to_idx, device, dropout, hidden
         broken_sentence = 0
         with torch.no_grad():
             for item in tqdm(val_data):
-                try:
-                    words = item[0]
-                    labels = torch.LongTensor(item[2])
-                    word_embeddings = item[1]
-                    sentence = createFullSentence(words)
-                    A, X = create_graph_from_sentence_and_word_vectors(sentence, word_embeddings)
+                #try:
+                words = item[0]
+                labels = torch.LongTensor(item[2])
+                word_embeddings = item[1]
+                sentence = createFullSentence(words)
+                A, X = create_graph_from_sentence_and_word_vectors(sentence, word_embeddings)
                     #logits_scores, logits_tags = ginner(X, A)
-                    output_tensor = ginner(X, A)
-                    val_loss = loss_function(output_tensor, labels).to(device)
+                output_tensor = ginner(X, A)
+                val_loss = loss_function(output_tensor, labels).to(device)
                     #val_loss = ginner.neg_log_likelihood(X, A, labels) 
                     #logits_scores, logits_tags = torch.max(output_tensor, 1, keepdim=True)
                     #logits_tags = logits_tags.detach().cpu().numpy().tolist()
-                    y_pred = output_tensor.max(1)[1].type_as(labels)
+                y_pred = output_tensor.max(1)[1].type_as(labels)
                     #print("y_pred", y_pred, len(y_pred))
-                    y_true = labels.detach().cpu().numpy()
+                y_true = labels.detach().cpu().numpy()
                     #print("y_true", y_true, len(y_true))
-                    f1_score_micro = f1_score(y_true, y_pred, average='micro')
+                f1_score_micro = f1_score(y_true, y_pred, average='micro')
                     #print("f1 score micro", f1_score_micro)
                     #score = logit_scores.detach().cpu().numpy()
-                    list_f1_score_micro.append(f1_score_micro)
+                list_f1_score_micro.append(f1_score_micro)
                             
-                    total_val_loss += val_loss.item()
-                    correct = y_pred.eq(y_true).double()
-                    correct = correct.sum()
-                    acc = correct / len(y_true)
-                    total_val_acc += acc
-                    total_val_sentences +=1
-                except:
-                    broken_sentence +=1
-                    pass
+                total_val_loss += val_loss.item()
+                correct = y_pred.eq(y_true).double()
+                correct = correct.sum()
+                acc = correct / len(y_true)
+                total_val_acc += acc
+                total_val_sentences +=1
+                #except:
+                #    broken_sentence +=1
+                #    pass
         total_val_loss = total_val_loss/total_val_sentences
         total_val_acc = total_val_acc/total_val_sentences
         avg_f1_scores_micro = sum(list_f1_score_micro)/len(list_f1_score_micro)
