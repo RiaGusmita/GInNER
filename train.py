@@ -137,33 +137,33 @@ def train(train_dataset, validation_dataset, tag_to_idx, device, dropout, hidden
         broken_sentence = 0
         with torch.no_grad():
             for item in tqdm(val_data):
-                #try:
-                words = item[0]
-                labels = torch.LongTensor(item[2])
-                word_embeddings = item[1]
-                sentence = createFullSentence(words)
-                A, X = create_graph_from_sentence_and_word_vectors(sentence, word_embeddings)
-                    #logits_scores, logits_tags = ginner(X, A)
-                output_tensor = ginner(X, A)
-                val_loss = loss_function(output_tensor, labels).to(device)
-                    #val_loss = ginner.neg_log_likelihood(X, A, labels) 
-                    #logits_scores, logits_tags = torch.max(output_tensor, 1, keepdim=True)
-                    #logits_tags = logits_tags.detach().cpu().numpy().tolist()
-                y_pred = output_tensor.max(1)[1].type_as(labels)
-                    #print("y_pred", y_pred, len(y_pred))
-                y_true = labels.detach().cpu().numpy()
-                    #print("y_true", y_true, len(y_true))
-                f1_score_micro = f1_score(y_true, y_pred, average='micro')
-                    #print("f1 score micro", f1_score_micro)
-                    #score = logit_scores.detach().cpu().numpy()
-                list_f1_score_micro.append(f1_score_micro)
-                            
-                total_val_loss += val_loss.item()
-                total_val_acc += accuracy_alt(y_pred, labels)
-                total_val_sentences +=1
-                #except:
-                #    broken_sentence +=1
-                #    pass
+                try:
+                    words = item[0]
+                    labels = torch.LongTensor(item[2])
+                    word_embeddings = item[1]
+                    sentence = createFullSentence(words)
+                    A, X = create_graph_from_sentence_and_word_vectors(sentence, word_embeddings)
+                        #logits_scores, logits_tags = ginner(X, A)
+                    output_tensor = ginner(X, A)
+                    val_loss = loss_function(output_tensor, labels).to(device)
+                        #val_loss = ginner.neg_log_likelihood(X, A, labels) 
+                        #logits_scores, logits_tags = torch.max(output_tensor, 1, keepdim=True)
+                        #logits_tags = logits_tags.detach().cpu().numpy().tolist()
+                    y_pred = output_tensor.max(1)[1].type_as(labels)
+                        #print("y_pred", y_pred, len(y_pred))
+                    y_true = labels.detach().cpu().numpy()
+                        #print("y_true", y_true, len(y_true))
+                    f1_score_micro = f1_score(y_true, y_pred, average='micro')
+                        #print("f1 score micro", f1_score_micro)
+                        #score = logit_scores.detach().cpu().numpy()
+                    list_f1_score_micro.append(f1_score_micro)
+                                
+                    total_val_loss += val_loss.item()
+                    total_val_acc += accuracy_alt(y_pred, labels)
+                    total_val_sentences +=1
+                except:
+                    broken_sentence +=1
+                    pass
         total_val_loss = total_val_loss/total_val_sentences
         total_val_acc = total_val_acc/total_val_sentences
         avg_f1_scores_micro = sum(list_f1_score_micro)/len(list_f1_score_micro)
@@ -191,7 +191,7 @@ def train(train_dataset, validation_dataset, tag_to_idx, device, dropout, hidden
                     }, path.join(saving_dir, "final_model.pt".format(i)))
         print("broken sentence during testing", broken_sentence)
         print("epoch: {}".format(i), "training loss", total_loss, "validation loss", total_val_loss, "acc", total_val_acc)
-        f.write("epoch {} train_loss {} validation_loss {} acc {} \n".format(i, total_loss, total_val_loss, total_val_acc))
+        f.write("epoch {} train_loss {} validation_loss {} acc {} f1-micro {} \n".format(i, total_loss, total_val_loss, total_val_acc, avg_f1_scores_micro))
         losses['Training set'].append(total_loss)
         losses['Validation set'].append(total_val_loss)
         showPlot(arEpochs, losses, "training_val_loss")
@@ -201,8 +201,8 @@ def accuracy_alt(outputs, labels):
     labels = labels.detach().cpu().numpy()
     #print("outputs", outputs)
     #print("labels", labels)
-    print("len output", len(outputs))
-    print("len labels", len(labels))
+    #print("len output", len(outputs))
+    #print("len labels", len(labels))
     for i, output in enumerate(outputs):
         if output == labels[i]:
             correct += 1
