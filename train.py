@@ -365,10 +365,10 @@ def evaluate_randomly(data, model, tag_to_idx):
     sentence = createFullSentence(words)
     labels = item[2]
     A, X = create_graph_from_sentence_and_word_vectors(sentence, word_embeddings)
-    #output_tensor = model(X, A)
+    output_tensor = model(X, A)
     #output_tensor = output_tensor
-    #logits_scores, logits_tags = torch.max(output_tensor, 1, keepdim=True)
-    logit_scores, logit_tags = model(X, A)
+    logits_scores, logit_tags = torch.max(output_tensor, 1, keepdim=True)
+    #logit_scores, logit_tags = model(X, A)
     #logits_label = logits_tags.detach().cpu().numpy().tolist()
     y_pred = [predict for predict in logit_tags]
     key_list = list(tag_to_idx.keys())
