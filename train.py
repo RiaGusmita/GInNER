@@ -90,7 +90,7 @@ def train(train_dataset, validation_dataset, tag_to_idx, device, dropout, hidden
     arEpochs = []
     losses = {'train set':[], 'val set': []}
     
-    
+    best_f1_score_micro = 0
     for i in range(1,epochs+1):
         arEpochs.append(i)
         sys.stderr.write('--------- Epoch ' + str(i) + ' ---------\n')
@@ -129,7 +129,7 @@ def train(train_dataset, validation_dataset, tag_to_idx, device, dropout, hidden
         total_val_acc = 0
         #with torch.no_grad():
         list_f1_score_micro = []
-        best_f1_score_micro = 0
+        
         broken_sentence = 0
         with torch.no_grad():
             for item in tqdm(val_data):
