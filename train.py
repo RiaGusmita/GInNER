@@ -61,6 +61,10 @@ def train(train_dataset, validation_dataset, tag_to_idx, device, dropout, hidden
     if not path.exists(saving_dir):
         os.makedirs(saving_dir)
     
+    print_to = 'logs.txt'
+    with open(print_to, 'w+') as f:
+        f.write("Starting Training \n")
+    
     sentences = getSentences(train_dataset)
     val_sentences = getSentences(validation_dataset)
     
@@ -187,6 +191,7 @@ def train(train_dataset, validation_dataset, tag_to_idx, device, dropout, hidden
                     }, path.join(saving_dir, "final_model.pt".format(i)))
         print("broken sentence during testing", broken_sentence)
         print("epoch: {}".format(i), "training loss", total_loss, "validation loss", total_val_loss, "acc", total_val_acc)
+        f.write("epoch {} train_loss {} validation_loss {} acc {} \n".format(i, total_loss, total_val_loss, total_val_acc))
         losses['Training set'].append(total_loss)
         losses['Validation set'].append(total_val_loss)
         showPlot(arEpochs, losses, "training_val_loss")
@@ -196,8 +201,8 @@ def accuracy_alt(outputs, labels):
     labels = labels.detach().cpu().numpy()
     #print("outputs", outputs)
     #print("labels", labels)
-    #print("len output", len(outputs))
-    #print("len labels", len(labels))
+    print("len output", len(outputs))
+    print("len labels", len(labels))
     for i, output in enumerate(outputs):
         if output == labels[i]:
             correct += 1
