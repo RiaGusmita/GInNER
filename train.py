@@ -155,10 +155,7 @@ def train(train_dataset, validation_dataset, tag_to_idx, device, dropout, hidden
                 list_f1_score_micro.append(f1_score_micro)
                             
                 total_val_loss += val_loss.item()
-                correct = y_pred.eq(y_true).double()
-                correct = correct.sum()
-                acc = correct / len(y_true)
-                total_val_acc += acc
+                total_val_acc += accuracy_alt(y_pred, labels)
                 total_val_sentences +=1
                 #except:
                 #    broken_sentence +=1
