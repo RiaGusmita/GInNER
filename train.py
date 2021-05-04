@@ -165,6 +165,7 @@ def train(train_dataset, validation_dataset, tag_to_idx, device, dropout, hidden
         total_val_acc = total_val_acc/total_val_sentences
         avg_f1_scores_micro = sum(list_f1_score_micro)/len(list_f1_score_micro)
         if avg_f1_scores_micro > best_f1_score_micro:
+            best_f1_score_micro = avg_f1_scores_micro
             torch.save({
                     "epoch": i,
                     "model_state_dict": ginner.state_dict(),
