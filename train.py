@@ -112,7 +112,7 @@ def train(train_dataset, validation_dataset, tag_to_idx, device, dropout, hidden
                 #print("labels", len(labels.detach().cpu().numpy()))
                 #loss = loss_function(output_tensor, labels).to(device)
                 loss = ginner.neg_log_likelihood(X, A, labels)    
-                optimizer.zero_grad()
+                ginner.zero_grad()
                 loss.backward()
                 optimizer.step()
                     
@@ -145,7 +145,7 @@ def train(train_dataset, validation_dataset, tag_to_idx, device, dropout, hidden
                     val_loss = ginner.neg_log_likelihood(X, A, labels) 
                     #logits_scores, logits_tags = torch.max(output_tensor, 1, keepdim=True)
                     #logits_tags = logits_tags.detach().cpu().numpy().tolist()
-                    y_pred = [predict for predict in logit_tags]
+                    y_pred = logits_tags
                     print("y_pred", y_pred, len(y_pred))
                     y_true = labels.detach().cpu().numpy()
                     print("y_true", y_true, len(y_true))
