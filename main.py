@@ -37,6 +37,9 @@ def main(mode, loss_function, hidden_layers, nheads, lr, dropout, regularization
     if word_emb_model=="fasttext":
         word_emb = fasttext.load_model('cc.id.300.bin')
         word_emb = fasttext.util.reduce_model(word_emb, word_emb_dim)
+    if word_emb_model=="fasttext-indobert":
+        word_emb = fasttext.load_model('fasttext.4B.id.300.epoch5.uncased.bin')
+        word_emb = fasttext.util.reduce_model(word_emb, word_emb_dim)    
     elif word_emb_model=="indobert":
         tokenizer = BertTokenizer.from_pretrained("indobenchmark/indobert-base-p1")
         model = AutoModel.from_pretrained("indobenchmark/indobert-base-p1")

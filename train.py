@@ -64,7 +64,7 @@ def train(train_dataset, validation_dataset, tag_to_idx, device, dropout, hidden
     sentences = getSentences(train_dataset)
     val_sentences = getSentences(validation_dataset)
     
-    if word_emb_model =="fasttext":
+    if word_emb_model =="fasttext" or word_emb_model=="fasttext-indobert":
         data = get_data_from_sentences_fasttext(sentences, word_emb, tag_to_idx)
         val_data = get_data_from_sentences_fasttext(val_sentences, word_emb, tag_to_idx)
     elif word_emb_model =="indobert":
@@ -146,11 +146,11 @@ def train(train_dataset, validation_dataset, tag_to_idx, device, dropout, hidden
                     #logits_scores, logits_tags = torch.max(output_tensor, 1, keepdim=True)
                     #logits_tags = logits_tags.detach().cpu().numpy().tolist()
                     y_pred = output_tensor.max(1)[1].type_as(labels)
-                    print("y_pred", y_pred, len(y_pred))
+                    #print("y_pred", y_pred, len(y_pred))
                     y_true = labels.detach().cpu().numpy()
-                    print("y_true", y_true, len(y_true))
+                    #print("y_true", y_true, len(y_true))
                     f1_score_micro = f1_score(y_true, y_pred, average='micro')
-                    print("f1 score micro", f1_score_micro)
+                    #print("f1 score micro", f1_score_micro)
                     #score = logit_scores.detach().cpu().numpy()
                     list_f1_score_micro.append(f1_score_micro)
                             

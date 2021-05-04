@@ -18,7 +18,7 @@ def model_testing(test_dataset, tag_to_idx, device, dropout, hidden_layer, nhead
     sentences = getSentences(test_dataset)
     #print("sentences", sentences)
     #print('len sentences', len(sentences))
-    if word_emb_model =="fasttext":
+    if word_emb_model =="fasttext" or word_emb_model=="fasttext-indobert":
         data = get_data_from_sentences_fasttext(sentences, word_emb, tag_to_idx)
     elif word_emb_model =="indobert":
         tokenizer, model = word_emb
