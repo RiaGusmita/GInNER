@@ -88,7 +88,7 @@ def train(train_dataset, validation_dataset, tag_to_idx, device, dropout, hidden
         optimizer = optim.Adam(ginner.parameters(), lr=lr)
     
     arEpochs = []
-    losses = {'train set':[], 'val set': []}
+    losses = {'Training set':[], 'Validation set': []}
     
     best_f1_score_micro = 0
     for i in range(1,epochs+1):
@@ -155,8 +155,10 @@ def train(train_dataset, validation_dataset, tag_to_idx, device, dropout, hidden
                     list_f1_score_micro.append(f1_score_micro)
                             
                     total_val_loss += val_loss.item()
-                    #acc_val = accuracy_alt(logits_tags, labels)
-                    total_val_acc += f1_score_micro
+                    correct = y_pred.eq(y_true).double()
+                    correct = correct.sum()
+                    acc = correct / len(y_true)
+                    total_val_acc += acc
                     total_val_sentences +=1
                 except:
                     broken_sentence +=1
@@ -188,8 +190,8 @@ def train(train_dataset, validation_dataset, tag_to_idx, device, dropout, hidden
                     }, path.join(saving_dir, "final_model.pt".format(i)))
         print("broken sentence during testing", broken_sentence)
         print("epoch: {}".format(i), "training loss", total_loss, "validation loss", total_val_loss, "acc", total_val_acc)
-        losses['train set'].append(total_loss)
-        losses['val set'].append(total_val_loss)
+        losses['Training set'].append(total_loss)
+        losses['Validation set'].append(total_val_loss)
         showPlot(arEpochs, losses, "training_val_loss")
         
 def accuracy_alt(outputs, labels):
