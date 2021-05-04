@@ -190,8 +190,9 @@ def train(train_dataset, validation_dataset, tag_to_idx, device, dropout, hidden
                     "loss": total_loss
                     }, path.join(saving_dir, "final_model.pt".format(i)))
         print("broken sentence during testing", broken_sentence)
-        print("epoch: {}".format(i), "training loss", total_loss, "validation loss", total_val_loss, "acc", total_val_acc)
-        f.write("epoch {} train_loss {} validation_loss {} acc {} f1-micro {} \n".format(i, total_loss, total_val_loss, total_val_acc, avg_f1_scores_micro))
+        print("epoch: {}".format(i), "training loss", total_loss, "validation loss", total_val_loss, "acc", total_val_acc, "f1-micro", avg_f1_scores_micro)
+        with open(print_to, 'a') as f:
+            f.write("epoch {} train_loss {} validation_loss {} acc {} f1-micro {} \n".format(i, total_loss, total_val_loss, total_val_acc, avg_f1_scores_micro))
         losses['Training set'].append(total_loss)
         losses['Validation set'].append(total_val_loss)
         showPlot(arEpochs, losses, "training_val_loss")
