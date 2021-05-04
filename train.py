@@ -75,7 +75,7 @@ def train(train_dataset, validation_dataset, tag_to_idx, device, dropout, hidden
         data = get_data_from_sentences(sentences, tag_to_idx)
         val_data = get_data_from_sentences(val_sentences, tag_to_idx)
     
-    loss_function = torch.nn.CrossEntropyLoss()
+    #loss_function = torch.nn.CrossEntropyLoss()
     
     print("total data", len(data))
     #buckets = bin_data_into_buckets(data, bucket_size)
@@ -110,9 +110,9 @@ def train(train_dataset, validation_dataset, tag_to_idx, device, dropout, hidden
                 #loss = loss_function(output_tensor, labels).to(device)
                 #print("tags", len(logit_tags))
                 #print("labels", len(labels.detach().cpu().numpy()))
-                loss = loss_function(logit_tags, labels).to(device)
-                #loss = ginner.neg_log_likelihood(X, A, labels)    
-                ginner.zero_grad()
+                #loss = loss_function(output_tensor, labels).to(device)
+                loss = ginner.neg_log_likelihood(X, A, labels)    
+                optimizer.zero_grad()
                 loss.backward()
                 optimizer.step()
                     
@@ -141,8 +141,8 @@ def train(train_dataset, validation_dataset, tag_to_idx, device, dropout, hidden
                     A, X = create_graph_from_sentence_and_word_vectors(sentence, word_embeddings)
                     logits_scores, logits_tags = ginner(X, A)
                     #output_tensor = ginner(X, A)
-                    loss = loss_function(logit_tags, labels).to(device)
-                    #val_loss = ginner.neg_log_likelihood(X, A, labels) 
+                    #loss = loss_function(output_tensor, labels).to(device)
+                    val_loss = ginner.neg_log_likelihood(X, A, labels) 
                     #logits_scores, logits_tags = torch.max(output_tensor, 1, keepdim=True)
                     #logits_tags = logits_tags.detach().cpu().numpy().tolist()
                     y_pred = logits_tags
