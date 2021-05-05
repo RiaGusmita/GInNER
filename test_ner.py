@@ -1,7 +1,6 @@
 _error_message = '''
-Please provide a text as an input.
-You can either provide the text as an argument: python test_ner.py Hard to believe this program was made in September 2017.
-Or pipe the text from the command line: python test_ner.py < data/random_text.txt
+Please provide text as an input.
+python test_ner.py < data/random_text.txt
 '''
 import torch
 import os.path as path
